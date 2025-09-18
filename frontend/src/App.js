@@ -1963,10 +1963,34 @@ const AdminAnalyticsTab = ({ products, orders }) => {
 const AdminProductCard = ({ product, categories, onEdit, onDelete, onToggleFeatured }) => {
   const category = categories.find(c => c.id === product.category_id);
   
+  // Handle image display with fallback
+  const getProductImage = () => {
+    if (product.images && Array.isArray(product.images) && product.images.length > 0 && product.images[0]) {
+      return product.images[0];
+    }
+    // Return a placeholder image if no image is available
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzBDMTA4LjI4NCA3MCA1Mi4zIDc1IDYwLjU4NCA3NUw2Mi4zMzMgOTEuNjY2N0g2Ny42NjZMNzIuNTMzIDk4LjQyNzlINjEuNSIgc3Ryb2tlPSIjOUNBM0FGIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNMTAwIDEzMEM5MS43MTU5IDEzMCAxMzguNSAxMjUgMTMwLjIxNiAxMjVMMTI4LjQ2NyAxMDguMzMzSDEyMy4xMzRMMTE4LjI2NyAxMDEuNTcySDEyOS4zIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNDAiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIi8+CjwvY3ZnPgo=';
+  };
+  
   return (
     <Card>
       <CardContent className="p-4">
-        <img src={product.images[0]} alt={product.name} className="w-full h-32 object-cover rounded mb-4" />
+        <div className="relative w-full h-32 mb-4">
+          <img 
+            src={getProductImage()} 
+            alt={product.name} 
+            className="w-full h-full object-cover rounded"
+            onError={(e) => {
+              // Fallback to placeholder image if the original image fails to load
+              e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzBDMTA4LjI4NCA3MCA1Mi4zIDc1IDYwLjU4NCA3NUw2Mi4zMzMgOTEuNjY2N0g2Ny42NjZMNzIuNTMzIDk4LjQyNzlINjEuNSIgc3Ryb2tlPSIjOUNBM0FGIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNMTAwIDEzMEM5MS43MTU5IDEzMCAxMzguNSAxMjUgMTMwLjIxNiAxMjVMMTI4LjQ2NyAxMDguMzMzSDEyMy4xMzRMMTE4LjI2NyAxMDEuNTcySDEyOS4zIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNDAiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIi8+CjwvY3ZnPgo=';
+            }}
+          />
+          {(!product.images || !Array.isArray(product.images) || product.images.length === 0) && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded">
+              <span className="text-gray-500 text-sm">No Image</span>
+            </div>
+          )}
+        </div>
         <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
         <p className="text-sm text-muted-foreground mb-2">{category?.name}</p>
         <p className="font-bold text-orange-500 mb-2">PKR {product.price.toLocaleString()}</p>
