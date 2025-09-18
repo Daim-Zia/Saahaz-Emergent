@@ -753,7 +753,7 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
             <img
               src={image}
               alt={`Image ${index + 1}`}
-              className="w-full h-24 object-cover rounded border border-gray-600"
+              className="w-full h-24 object-cover rounded border border-gray-300"
               onError={(e) => {
                 e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjMzc0MTUxIi8+CjxwYXRoIGQ9Ik0xMiA5VjEzTTE1IDEwLjVWMTEuNUw5IDEyLjVWMTAuNU0xMiAxNkg5TDE1IDE0SDE4VjEwSDZWMTRIMTJaIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=';
               }}
