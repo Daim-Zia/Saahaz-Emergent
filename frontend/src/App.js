@@ -1139,11 +1139,10 @@ const AdminCategoriesTab = ({ categories, setCategories }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Image URL</label>
-              <Input
-                value={categoryForm.image}
-                onChange={(e) => setCategoryForm({...categoryForm, image: e.target.value})}
-                placeholder="https://images.unsplash.com/..."
+              <ImageUpload 
+                images={categoryForm.image ? [categoryForm.image] : []} 
+                setImages={(images) => setCategoryForm({...categoryForm, image: images[0] || ''})}
+                maxImages={1}
               />
             </div>
 
