@@ -903,15 +903,28 @@ const AdminDashboard = () => {
           </TabsList>
 
           <TabsContent value="products" className="mt-8">
-            <AdminProductsTab products={products} setProducts={setProducts} categories={categories} />
+            <AdminProductsTab 
+              products={products} 
+              setProducts={setProducts} 
+              categories={categories} 
+              showToast={showToast}
+            />
           </TabsContent>
 
           <TabsContent value="categories" className="mt-8">
-            <AdminCategoriesTab categories={categories} setCategories={setCategories} />
+            <AdminCategoriesTab 
+              categories={categories} 
+              setCategories={setCategories} 
+              showToast={showToast}
+            />
           </TabsContent>
 
           <TabsContent value="orders" className="mt-8">
-            <AdminOrdersTab orders={orders} setOrders={setOrders} />
+            <AdminOrdersTab 
+              orders={orders} 
+              setOrders={setOrders} 
+              showToast={showToast}
+            />
           </TabsContent>
 
           <TabsContent value="analytics" className="mt-8">
