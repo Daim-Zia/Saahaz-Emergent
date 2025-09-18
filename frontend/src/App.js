@@ -391,7 +391,10 @@ const ProductCard = ({ product }) => {
           className="w-full bg-orange-500 hover:bg-orange-600" 
           onClick={(e) => {
             e.stopPropagation();
-            addToCart(product.id, 1);
+            // Use default size and color for quick add to cart
+            const defaultSize = product.sizes[0] || null;
+            const defaultColor = product.colors[0] || null;
+            addToCart(product.id, 1, defaultSize, defaultColor);
             alert('Added to cart!');
           }}
         >
