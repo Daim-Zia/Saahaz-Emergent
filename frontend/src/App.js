@@ -763,7 +763,7 @@ const ProductCard = ({ product }) => {
             const defaultSize = product.sizes[0] || null;
             const defaultColor = product.colors[0] || null;
             addToCart(product.id, 1, defaultSize, defaultColor);
-            alert('Added to cart!');
+            showToast(`${product.name} added to cart!`, 'success');
           }}
         >
           <ShoppingCartIcon className="mr-2 h-4 w-4" />
