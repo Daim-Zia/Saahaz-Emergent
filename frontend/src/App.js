@@ -50,6 +50,84 @@ const useAppContext = () => {
   return context;
 };
 
+// Toast Notification Component
+const Toast = ({ message, type, isVisible, onClose }) => {
+  useEffect(() => {
+    if (isVisible) {
+      const timer = setTimeout(() => {
+        onClose();
+      }, 3000); // Auto close after 3 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible, onClose]);
+
+  if (!isVisible) return null;
+
+  const getToastStyles = () => {
+    switch (type) {
+      case 'success':
+        return 'bg-green-50 border-green-200 text-green-800';
+      case 'error':
+        return 'bg-red-50 border-red-200 text-red-800';
+      case 'warning':
+        return 'bg-yellow-50 border-yellow-200 text-yellow-800';
+      case 'info':
+        return 'bg-orange-50 border-orange-200 text-orange-800';
+      default:
+        return 'bg-gray-50 border-gray-200 text-gray-800';
+    }
+  };
+
+  const getIcon = () => {
+    switch (type) {
+      case 'success':
+        return <CheckCircle className="h-5 w-5 text-green-600" />;
+      case 'error':
+        return <XCircle className="h-5 w-5 text-red-600" />;
+      case 'warning':
+        return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
+      case 'info':
+        return <Heart className="h-5 w-5 text-orange-600" />;
+      default:
+        return <Info className="h-5 w-5 text-gray-600" />;
+    }
+  };
+
+  return (
+    <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top-2 duration-300">
+      <div className={`flex items-center p-4 rounded-lg border shadow-lg min-w-80 ${getToastStyles()}`}>
+        <div className="flex-shrink-0 mr-3">
+          {getIcon()}
+        </div>
+        <div className="flex-1">
+          <p className="font-medium">{message}</p>
+        </div>
+        <button
+          onClick={onClose}
+          className="flex-shrink-0 ml-3 text-current hover:opacity-70 transition-opacity"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Toast Hook for managing toast state
+const useToast = () => {
+  const [toast, setToast] = useState({ message: '', type: 'info', isVisible: false });
+
+  const showToast = (message, type = 'info') => {
+    setToast({ message, type, isVisible: true });
+  };
+
+  const hideToast = () => {
+    setToast(prev => ({ ...prev, isVisible: false }));
+  };
+
+  return { toast, showToast, hideToast };
+};
+
 // Mock data for initial display
 const mockCategories = [
   { id: '1', name: 'Shirts', description: 'Stylish shirts for every occasion', image: 'https://images.unsplash.com/photo-1562157873-818bc0726f68?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwzfHxjbG90aGluZ3xlbnwwfHx8fDE3NTgxNTc2ODR8MA&ixlib=rb-4.1.0&q=85' },
