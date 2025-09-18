@@ -697,7 +697,14 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
+    <>
+      <Toast 
+        message={toast.message} 
+        type={toast.type} 
+        isVisible={toast.isVisible} 
+        onClose={hideToast} 
+      />
+      <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
       <div className="relative aspect-square overflow-hidden" onClick={handleProductClick}>
         <img
           src={getProductImage()}
