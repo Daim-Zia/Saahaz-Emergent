@@ -2000,6 +2000,15 @@ const ProductsPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Get category from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryParam = urlParams.get('category');
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
