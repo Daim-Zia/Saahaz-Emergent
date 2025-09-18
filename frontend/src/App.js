@@ -1241,22 +1241,181 @@ const AdminOrdersTab = ({ orders, setOrders }) => {
   );
 };
 
-// Admin Analytics Tab
+// Admin Analytics Tab - Enhanced
 const AdminAnalyticsTab = ({ products, orders }) => {
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total_amount, 0);
-  const totalProducts = products.length;
-  const totalOrders = orders.length;
-  const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
+  const [dateRange, setDateRange] = useState('30'); // days
+  const [analyticsData, setAnalyticsData] = useState({});
+
+  const calculateAnalytics = () => {
+    const now = new Date();
+    const daysAgo = new Date(now.getTime() - (parseInt(dateRange) * 24 * 60 * 60 * 1000));
+    const filteredOrders = orders.filter(order => new Date(order.created_at) >= daysAgo);
+    
+    const totalRevenue = filteredOrders.reduce((sum, order) => sum + order.total_amount, 0);
+    const totalOrders = filteredOrders.length;
+    const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    
+    // Order status breakdown
+    const statusBreakdown = {
+      pending: filteredOrders.filter(o => o.status === 'pending').length,
+      confirmed: filteredOrders.filter(o => o.status === 'confirmed').length,  
+      shipped: filteredOrders.filter(o => o.status === 'shipped').length,
+      delivered: filteredOrders.filter(o => o.status === 'delivered').length,
+      cancelled: filteredOrders.filter(o => o.status === 'cancelled').length
+    };
+    
+    // Top selling products
+    const productSales = {};
+    filteredOrders.forEach(order => {
+      order.items.forEach(item => {
+        if (productSales[item.product_id]) {
+          productSales[item.product_id] += item.quantity;
+        } else {
+          productSales[item.product_id] = item.quantity;
+        }
+      });
+    });
+    
+    const topProducts = Object.entries(productSales)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([productId, quantity]) => ({
+        product: products.find(p => p.id === productId),
+        quantity
+      }));
+    
+    // Daily sales data (last 7 days)
+    const dailySales = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(now.getTime() - (i * 24 * 60 * 60 * 1000));
+      const dayOrders = filteredOrders.filter(order => {
+        const orderDate = new Date(order.created_at);
+        return orderDate.toDateString() === date.toDateString();
+      });
+      const dayRevenue = dayOrders.reduce((sum, order) => sum + order.total_amount, 0);
+      dailySales.push({
+        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        revenue: dayRevenue,
+        orders: dayOrders.length
+      });
+    }
+    
+    return {
+      totalRevenue,
+      totalOrders,
+      avgOrderValue,
+      statusBreakdown,
+      topProducts,
+      dailySales,
+      totalProducts: products.length,
+      lowStockProducts: products.filter(p => p.inventory < 10).length
+    };
+  };
+
+  useEffect(() => {
+    setAnalyticsData(calculateAnalytics());
+  }, [dateRange, orders, products]);
+
+  const printAnalytics = () => {
+    const printContent = `
+      <html>
+        <head>
+          <title>Saahaz.com Analytics Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+            .metric { border: 1px solid #ddd; padding: 20px; text-align: center; }
+            .metric h3 { margin: 0 0 10px 0; color: #f97316; }
+            .metric p { margin: 0; font-size: 24px; font-weight: bold; }
+            .section { margin-bottom: 30px; }
+            .section h2 { color: #333; border-bottom: 2px solid #f97316; padding-bottom: 10px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f97316; color: white; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Saahaz.com Analytics Report</h1>
+            <p>Period: Last ${dateRange} days | Generated: ${new Date().toLocaleDateString()}</p>
+          </div>
+          
+          <div class="metrics">
+            <div class="metric">
+              <h3>Total Revenue</h3>
+              <p>PKR ${analyticsData.totalRevenue?.toLocaleString()}</p>
+            </div>
+            <div class="metric">
+              <h3>Total Orders</h3>
+              <p>${analyticsData.totalOrders}</p>
+            </div>
+            <div class="metric">
+              <h3>Average Order Value</h3>
+              <p>PKR ${Math.round(analyticsData.avgOrderValue || 0).toLocaleString()}</p>
+            </div>
+            <div class="metric">
+              <h3>Total Products</h3>
+              <p>${analyticsData.totalProducts}</p>
+            </div>
+          </div>
+          
+          <div class="section">
+            <h2>Order Status Breakdown</h2>
+            <table>
+              <tr><th>Status</th><th>Count</th><th>Percentage</th></tr>
+              ${Object.entries(analyticsData.statusBreakdown || {}).map(([status, count]) => 
+                `<tr><td>${status.charAt(0).toUpperCase() + status.slice(1)}</td><td>${count}</td><td>${((count / analyticsData.totalOrders) * 100).toFixed(1)}%</td></tr>`
+              ).join('')}
+            </table>
+          </div>
+          
+          <div class="section">
+            <h2>Top Selling Products</h2>
+            <table>
+              <tr><th>Product</th><th>Quantity Sold</th><th>Price</th></tr>
+              ${analyticsData.topProducts?.map(item => 
+                `<tr><td>${item.product?.name || 'Unknown'}</td><td>${item.quantity}</td><td>PKR ${item.product?.price?.toLocaleString()}</td></tr>`
+              ).join('')}
+            </table>
+          </div>
+        </body>
+      </html>
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.print();
+  };
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">Analytics & Reports</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Analytics & Reports</h2>
+        <div className="flex gap-2">
+          <select 
+            value={dateRange} 
+            onChange={(e) => setDateRange(e.target.value)}
+            className="p-2 border rounded"
+          >
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="365">Last year</option>
+          </select>
+          <Button onClick={printAnalytics} variant="outline">
+            Print Report
+          </Button>
+        </div>
+      </div>
       
+      {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardContent className="p-6 text-center">
             <div className="text-3xl font-bold text-orange-500 mb-2">
-              PKR {totalRevenue.toLocaleString()}
+              PKR {analyticsData.totalRevenue?.toLocaleString()}
             </div>
             <p className="text-sm text-muted-foreground">Total Revenue</p>
           </CardContent>
@@ -1264,14 +1423,14 @@ const AdminAnalyticsTab = ({ products, orders }) => {
         
         <Card>
           <CardContent className="p-6 text-center">
-            <div className="text-3xl font-bold text-blue-500 mb-2">{totalOrders}</div>
+            <div className="text-3xl font-bold text-blue-500 mb-2">{analyticsData.totalOrders}</div>
             <p className="text-sm text-muted-foreground">Total Orders</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-6 text-center">
-            <div className="text-3xl font-bold text-green-500 mb-2">{totalProducts}</div>
+            <div className="text-3xl font-bold text-green-500 mb-2">{analyticsData.totalProducts}</div>
             <p className="text-sm text-muted-foreground">Total Products</p>
           </CardContent>
         </Card>
@@ -1279,29 +1438,37 @@ const AdminAnalyticsTab = ({ products, orders }) => {
         <Card>
           <CardContent className="p-6 text-center">
             <div className="text-3xl font-bold text-purple-500 mb-2">
-              PKR {Math.round(avgOrderValue).toLocaleString()}
+              PKR {Math.round(analyticsData.avgOrderValue || 0).toLocaleString()}
             </div>
             <p className="text-sm text-muted-foreground">Avg Order Value</p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Order Status Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Orders</CardTitle>
+            <CardTitle>Order Status Breakdown</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {orders.slice(0, 5).map(order => (
-                <div key={order.id} className="flex justify-between items-center p-3 border rounded">
-                  <div>
-                    <p className="font-medium">Order #{order.id.slice(0, 8)}</p>
-                    <p className="text-sm text-muted-foreground">{order.items.length} items</p>
+            <div className="space-y-3">
+              {Object.entries(analyticsData.statusBreakdown || {}).map(([status, count]) => (
+                <div key={status} className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-3 h-3 rounded-full ${
+                      status === 'pending' ? 'bg-yellow-500' :
+                      status === 'confirmed' ? 'bg-blue-500' :
+                      status === 'shipped' ? 'bg-purple-500' :
+                      status === 'delivered' ? 'bg-green-500' : 'bg-red-500'
+                    }`}></div>
+                    <span className="capitalize">{status}</span>
                   </div>
-                  <div className="text-right">
-                    <p className="font-medium">PKR {order.total_amount.toLocaleString()}</p>
-                    <Badge variant="secondary">{order.status}</Badge>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium">{count}</span>
+                    <span className="text-sm text-muted-foreground">
+                      ({((count / analyticsData.totalOrders) * 100).toFixed(1)}%)
+                    </span>
                   </div>
                 </div>
               ))}
@@ -1309,24 +1476,87 @@ const AdminAnalyticsTab = ({ products, orders }) => {
           </CardContent>
         </Card>
 
+        {/* Daily Sales Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Top Products</CardTitle>
+            <CardTitle>Daily Sales (Last 7 Days)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {analyticsData.dailySales?.map((day, index) => (
+                <div key={index} className="flex items-center justify-between p-2 border rounded">
+                  <span className="font-medium">{day.date}</span>
+                  <div className="text-right">
+                    <div className="font-bold text-orange-500">PKR {day.revenue.toLocaleString()}</div>
+                    <div className="text-sm text-muted-foreground">{day.orders} orders</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Top Products */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Top Selling Products</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {products.filter(p => p.featured).slice(0, 5).map(product => (
-                <div key={product.id} className="flex justify-between items-center p-3 border rounded">
+              {analyticsData.topProducts?.map((item, index) => (
+                <div key={index} className="flex items-center justify-between p-3 border rounded">
                   <div className="flex items-center space-x-3">
-                    <img src={product.images[0]} alt={product.name} className="w-12 h-12 object-cover rounded" />
+                    <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-bold text-orange-600">{index + 1}</span>
+                    </div>
                     <div>
-                      <p className="font-medium">{product.name}</p>
-                      <p className="text-sm text-muted-foreground">Stock: {product.inventory}</p>
+                      <p className="font-medium">{item.product?.name || 'Unknown Product'}</p>
+                      <p className="text-sm text-muted-foreground">PKR {item.product?.price?.toLocaleString()}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium">PKR {product.price.toLocaleString()}</p>
-                    {product.featured && <Badge>Featured</Badge>}
+                    <p className="font-bold">{item.quantity} sold</p>
+                    <p className="text-sm text-muted-foreground">
+                      PKR {((item.product?.price || 0) * item.quantity).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Inventory Alerts */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Inventory Alerts</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <span className="font-medium">Low Stock Products</span>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {analyticsData.lowStockProducts} products with less than 10 items in stock
+                </p>
+              </div>
+              
+              {products.filter(p => p.inventory < 10).slice(0, 5).map(product => (
+                <div key={product.id} className="flex items-center justify-between p-2 border rounded">
+                  <div>
+                    <p className="font-medium">{product.name}</p>
+                    <p className="text-sm text-muted-foreground">PKR {product.price.toLocaleString()}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      product.inventory === 0 ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {product.inventory === 0 ? 'Out of Stock' : `${product.inventory} left`}
+                    </span>
                   </div>
                 </div>
               ))}
