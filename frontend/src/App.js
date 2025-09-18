@@ -1251,9 +1251,7 @@ const AdminProductsTab = ({ products, setProducts, categories, showToast }) => {
   });
 
   console.log('AdminProductsTab received:', { 
-    productsCount: products ? products.length : 'undefined',
-    products: products,
-    categoriesCount: categories ? categories.length : 'undefined'
+    productsCount: products ? products.length : 'undefined'
   });
 
   const resetForm = () => {
