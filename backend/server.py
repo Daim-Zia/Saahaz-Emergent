@@ -162,10 +162,12 @@ async def register(user_data: UserCreate):
     hashed_password = get_password_hash(user_data.password)
     user_dict = user_data.dict()
     user_dict.pop('password')
-    user_dict['password_hash'] = hashed_password
     
     user = User(**user_dict)
-    await db[users_collection].insert_one(user.dict())
+    user_doc = user.dict()
+    user_doc['password_hash'] = hashed_password
+    
+    await db[users_collection].insert_one(user_doc)
     
     # Create token
     token = create_access_token({"sub": user.id})
