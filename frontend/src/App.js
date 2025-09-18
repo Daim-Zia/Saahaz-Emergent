@@ -699,8 +699,10 @@ const AdminDashboard = () => {
 const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
   const [uploading, setUploading] = useState(false);
   
-  // Ensure images is always an array
-  const imageArray = Array.isArray(images) ? images : (images ? [images] : []);
+  // Ensure images is always an array and log what we're getting
+  console.log('ImageUpload received images prop:', images, 'Type:', typeof images);
+  const imageArray = Array.isArray(images) ? images : [];
+  console.log('ImageUpload processed imageArray:', imageArray);
 
   const handleImageUpload = (event) => {
     const files = Array.from(event.target.files);
