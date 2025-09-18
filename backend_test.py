@@ -115,6 +115,143 @@ class SaahazAPITester:
             return True
         return False
 
+    def test_admin_login_detailed(self, email, password):
+        """Test admin login with detailed debugging"""
+        print(f"\n🔍 DETAILED ADMIN LOGIN TEST for {email}")
+        print("=" * 50)
+        
+        # Step 1: Check if user exists by attempting login
+        login_data = {
+            "email": email,
+            "password": password
+        }
+        
+        url = f"{self.api_url}/auth/login"
+        headers = {'Content-Type': 'application/json'}
+        
+        print(f"1️⃣ Testing login endpoint: {url}")
+        print(f"   Email: {email}")
+        print(f"   Password: {'*' * len(password)}")
+        
+        try:
+            response = requests.post(url, json=login_data, headers=headers, timeout=10)
+            print(f"   Response Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                response_data = response.json()
+                print("✅ LOGIN SUCCESSFUL")
+                print(f"   Access Token: {response_data.get('access_token', 'Not found')[:30]}...")
+                
+                # Check user details
+                user_data = response_data.get('user', {})
+                print(f"\n2️⃣ USER DETAILS:")
+                print(f"   ID: {user_data.get('id', 'Not found')}")
+                print(f"   Email: {user_data.get('email', 'Not found')}")
+                print(f"   Name: {user_data.get('name', 'Not found')}")
+                print(f"   Is Admin: {user_data.get('is_admin', 'Not found')}")
+                print(f"   Address: {user_data.get('address', 'Not found')}")
+                print(f"   Phone: {user_data.get('phone', 'Not found')}")
+                print(f"   Created At: {user_data.get('created_at', 'Not found')}")
+                
+                # Verify JWT token structure
+                token = response_data.get('access_token')
+                if token:
+                    print(f"\n3️⃣ JWT TOKEN VERIFICATION:")
+                    try:
+                        import jwt
+                        # Decode without verification to see payload
+                        decoded = jwt.decode(token, options={"verify_signature": False})
+                        print(f"   Token Payload: {decoded}")
+                        print(f"   Subject (user_id): {decoded.get('sub', 'Not found')}")
+                    except Exception as e:
+                        print(f"   Token decode error: {str(e)}")
+                
+                # Test admin privileges
+                if user_data.get('is_admin'):
+                    print(f"\n4️⃣ TESTING ADMIN PRIVILEGES:")
+                    self.admin_token = token
+                    admin_test_success = self.test_admin_endpoint_access()
+                    if admin_test_success:
+                        print("✅ Admin privileges confirmed - can access admin endpoints")
+                    else:
+                        print("❌ Admin privileges not working - cannot access admin endpoints")
+                else:
+                    print(f"\n4️⃣ USER IS NOT ADMIN")
+                    print("❌ is_admin field is False - user does not have admin privileges")
+                
+                return True, response_data
+                
+            elif response.status_code == 401:
+                print("❌ LOGIN FAILED - 401 Unauthorized")
+                try:
+                    error_data = response.json()
+                    print(f"   Error: {error_data.get('detail', 'Unknown error')}")
+                    
+                    if 'Invalid credentials' in error_data.get('detail', ''):
+                        print("\n🔍 DEBUGGING LOGIN FAILURE:")
+                        print("   Possible reasons:")
+                        print("   - User does not exist in database")
+                        print("   - Password is incorrect")
+                        print("   - Email format issue")
+                        
+                        # Try to check if user exists by attempting registration
+                        print("\n   Testing if user exists by attempting registration...")
+                        reg_data = {
+                            "email": email,
+                            "password": "test123",
+                            "name": "Test User"
+                        }
+                        reg_response = requests.post(f"{self.api_url}/auth/register", json=reg_data, headers=headers, timeout=10)
+                        if reg_response.status_code == 400:
+                            reg_error = reg_response.json()
+                            if 'already registered' in reg_error.get('detail', ''):
+                                print("   ✅ User EXISTS in database - password is likely incorrect")
+                            else:
+                                print(f"   Registration error: {reg_error.get('detail', 'Unknown')}")
+                        elif reg_response.status_code == 200:
+                            print("   ❌ User does NOT exist in database - registration succeeded")
+                        else:
+                            print(f"   Registration test inconclusive - status: {reg_response.status_code}")
+                            
+                except Exception as e:
+                    print(f"   Could not parse error response: {str(e)}")
+                    print(f"   Raw response: {response.text}")
+                
+                return False, {}
+                
+            else:
+                print(f"❌ UNEXPECTED RESPONSE - Status: {response.status_code}")
+                print(f"   Response: {response.text}")
+                return False, {}
+                
+        except requests.exceptions.Timeout:
+            print("❌ REQUEST TIMEOUT")
+            return False, {}
+        except requests.exceptions.ConnectionError:
+            print("❌ CONNECTION ERROR - Cannot reach the API")
+            return False, {}
+        except Exception as e:
+            print(f"❌ UNEXPECTED ERROR: {str(e)}")
+            return False, {}
+
+    def test_admin_endpoint_access(self):
+        """Test if current admin token can access admin endpoints"""
+        if not self.admin_token:
+            return False
+            
+        # Try to access an admin endpoint
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        try:
+            # Test admin access by trying to get all orders (admin can see all orders)
+            response = requests.get(f"{self.api_url}/orders", headers=headers, timeout=10)
+            return response.status_code == 200
+        except:
+            return False
+
     def test_get_categories(self):
         """Test getting categories"""
         success, response = self.run_test("Get Categories", "GET", "categories", 200)
