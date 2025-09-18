@@ -2757,12 +2757,12 @@ const ShoppingCart = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Delivery</span>
-                  <span className="text-green-600">FREE</span>
+                  <span className="text-orange-600">Calculated at checkout</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>PKR {cartTotal.toLocaleString()}</span>
+                  <span className="text-gray-600">PKR {cartTotal.toLocaleString()} + delivery</span>
                 </div>
                 <Button size="lg" className="w-full bg-orange-500 hover:bg-orange-600"
                         onClick={() => window.location.href = '/checkout'}>
