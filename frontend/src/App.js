@@ -2101,17 +2101,21 @@ const AppProvider = ({ children }) => {
   };
 
   // Cart functions
-  const addToCart = (productId, quantity = 1) => {
+  const addToCart = (productId, quantity = 1, size = null, color = null) => {
     setCart(prevCart => {
-      const existingItem = prevCart.find(item => item.product_id === productId);
+      const existingItem = prevCart.find(item => 
+        item.product_id === productId && 
+        item.size === size && 
+        item.color === color
+      );
       if (existingItem) {
         return prevCart.map(item =>
-          item.product_id === productId
+          item.product_id === productId && item.size === size && item.color === color
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
-      return [...prevCart, { product_id: productId, quantity }];
+      return [...prevCart, { product_id: productId, quantity, size, color }];
     });
   };
 
