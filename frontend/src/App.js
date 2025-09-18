@@ -1325,7 +1325,7 @@ const AdminAnalyticsTab = ({ products, orders }) => {
 };
 
 // Admin Product Card
-const AdminProductCard = ({ product, categories }) => {
+const AdminProductCard = ({ product, categories, onEdit, onDelete, onToggleFeatured }) => {
   const category = categories.find(c => c.id === product.category_id);
   
   return (
@@ -1336,10 +1336,16 @@ const AdminProductCard = ({ product, categories }) => {
         <p className="text-sm text-muted-foreground mb-2">{category?.name}</p>
         <p className="font-bold text-orange-500 mb-2">PKR {product.price.toLocaleString()}</p>
         <p className="text-sm mb-4">Stock: {product.inventory}</p>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">Edit</Button>
-          <Button variant="outline" size="sm" className="text-red-600">Delete</Button>
-          {product.featured && <Badge>Featured</Badge>}
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={onEdit}>Edit</Button>
+          <Button variant="outline" size="sm" className="text-red-600" onClick={onDelete}>Delete</Button>
+          <Button 
+            variant={product.featured ? "default" : "outline"} 
+            size="sm" 
+            onClick={onToggleFeatured}
+          >
+            {product.featured ? "Featured ✓" : "Mark Featured"}
+          </Button>
         </div>
       </CardContent>
     </Card>
