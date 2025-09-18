@@ -506,6 +506,378 @@ const FeaturesSection = () => {
   );
 };
 
+// Admin Dashboard Component
+const AdminDashboard = () => {
+  const { user } = useAppContext();
+  const [activeTab, setActiveTab] = useState('products');
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user || !user.is_admin) {
+      return;
+    }
+
+    const fetchAdminData = async () => {
+      try {
+        setLoading(true);
+        const [productsRes, categoriesRes, ordersRes] = await Promise.all([
+          axios.get(`${API}/products`),
+          axios.get(`${API}/categories`),
+          axios.get(`${API}/orders`)
+        ]);
+        
+        setProducts(productsRes.data);
+        setCategories(categoriesRes.data);
+        setOrders(ordersRes.data);
+      } catch (error) {
+        console.error('Error fetching admin data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAdminData();
+  }, [user]);
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <h2 className="text-2xl font-bold mb-4">Access Restricted</h2>
+            <p className="mb-4">Please login to access the admin dashboard.</p>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button>Login</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <AuthDialog />
+              </DialogContent>
+            </Dialog>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!user.is_admin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <h2 className="text-2xl font-bold mb-4">Admin Access Required</h2>
+            <p>You don't have permission to access this page.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="loading-skeleton w-32 h-32 rounded-full mx-auto mb-4"></div>
+          <p className="text-lg">Loading Admin Dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
+          <p className="text-muted-foreground">Manage your e-commerce platform</p>
+        </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-4 w-full max-w-md">
+            <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="categories">Categories</TabsTrigger>
+            <TabsTrigger value="orders">Orders</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="products" className="mt-8">
+            <AdminProductsTab products={products} setProducts={setProducts} categories={categories} />
+          </TabsContent>
+
+          <TabsContent value="categories" className="mt-8">
+            <AdminCategoriesTab categories={categories} setCategories={setCategories} />
+          </TabsContent>
+
+          <TabsContent value="orders" className="mt-8">
+            <AdminOrdersTab orders={orders} setOrders={setOrders} />
+          </TabsContent>
+
+          <TabsContent value="analytics" className="mt-8">
+            <AdminAnalyticsTab products={products} orders={orders} />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+};
+
+// Admin Products Tab
+const AdminProductsTab = ({ products, setProducts, categories }) => {
+  const [isAddingProduct, setIsAddingProduct] = useState(false);
+  
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Products Management</h2>
+        <Button onClick={() => setIsAddingProduct(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Product
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {products.map(product => (
+          <AdminProductCard key={product.id} product={product} categories={categories} />
+        ))}
+      </div>
+
+      {/* Add Product Dialog would go here */}
+    </div>
+  );
+};
+
+// Admin Categories Tab
+const AdminCategoriesTab = ({ categories, setCategories }) => {
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Categories Management</h2>
+        <Button>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Category
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {categories.map(category => (
+          <Card key={category.id}>
+            <CardContent className="p-4">
+              <img src={category.image} alt={category.name} className="w-full h-32 object-cover rounded mb-4" />
+              <h3 className="font-semibold text-lg mb-2">{category.name}</h3>
+              <p className="text-sm text-muted-foreground mb-4">{category.description}</p>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm">Edit</Button>
+                <Button variant="outline" size="sm" className="text-red-600">Delete</Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Admin Orders Tab
+const AdminOrdersTab = ({ orders, setOrders }) => {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-6">Orders Management</h2>
+      
+      <div className="bg-white rounded-lg shadow">
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <Card>
+              <CardContent className="p-4 text-center">
+                <h3 className="text-2xl font-bold text-orange-500">{orders.length}</h3>
+                <p className="text-sm text-muted-foreground">Total Orders</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <h3 className="text-2xl font-bold text-green-500">
+                  {orders.filter(o => o.status === 'confirmed').length}
+                </h3>
+                <p className="text-sm text-muted-foreground">Confirmed</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <h3 className="text-2xl font-bold text-blue-500">
+                  {orders.filter(o => o.status === 'shipped').length}
+                </h3>
+                <p className="text-sm text-muted-foreground">Shipped</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <h3 className="text-2xl font-bold text-purple-500">
+                  PKR {orders.reduce((sum, order) => sum + order.total_amount, 0).toLocaleString()}
+                </h3>
+                <p className="text-sm text-muted-foreground">Total Revenue</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-4">Order ID</th>
+                  <th className="text-left p-4">Customer</th>
+                  <th className="text-left p-4">Items</th>
+                  <th className="text-left p-4">Total</th>
+                  <th className="text-left p-4">Status</th>
+                  <th className="text-left p-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map(order => (
+                  <tr key={order.id} className="border-b">
+                    <td className="p-4 font-mono text-sm">{order.id.slice(0, 8)}...</td>
+                    <td className="p-4">{order.user_id}</td>
+                    <td className="p-4">{order.items.length} items</td>
+                    <td className="p-4 font-semibold">PKR {order.total_amount.toLocaleString()}</td>
+                    <td className="p-4">
+                      <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'}>
+                        {order.status}
+                      </Badge>
+                    </td>
+                    <td className="p-4">
+                      <Button variant="outline" size="sm">View Details</Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Admin Analytics Tab
+const AdminAnalyticsTab = ({ products, orders }) => {
+  const totalRevenue = orders.reduce((sum, order) => sum + order.total_amount, 0);
+  const totalProducts = products.length;
+  const totalOrders = orders.length;
+  const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-6">Analytics & Reports</h2>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Card>
+          <CardContent className="p-6 text-center">
+            <div className="text-3xl font-bold text-orange-500 mb-2">
+              PKR {totalRevenue.toLocaleString()}
+            </div>
+            <p className="text-sm text-muted-foreground">Total Revenue</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6 text-center">
+            <div className="text-3xl font-bold text-blue-500 mb-2">{totalOrders}</div>
+            <p className="text-sm text-muted-foreground">Total Orders</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6 text-center">
+            <div className="text-3xl font-bold text-green-500 mb-2">{totalProducts}</div>
+            <p className="text-sm text-muted-foreground">Total Products</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6 text-center">
+            <div className="text-3xl font-bold text-purple-500 mb-2">
+              PKR {Math.round(avgOrderValue).toLocaleString()}
+            </div>
+            <p className="text-sm text-muted-foreground">Avg Order Value</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Orders</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {orders.slice(0, 5).map(order => (
+                <div key={order.id} className="flex justify-between items-center p-3 border rounded">
+                  <div>
+                    <p className="font-medium">Order #{order.id.slice(0, 8)}</p>
+                    <p className="text-sm text-muted-foreground">{order.items.length} items</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">PKR {order.total_amount.toLocaleString()}</p>
+                    <Badge variant="secondary">{order.status}</Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Top Products</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {products.filter(p => p.featured).slice(0, 5).map(product => (
+                <div key={product.id} className="flex justify-between items-center p-3 border rounded">
+                  <div className="flex items-center space-x-3">
+                    <img src={product.images[0]} alt={product.name} className="w-12 h-12 object-cover rounded" />
+                    <div>
+                      <p className="font-medium">{product.name}</p>
+                      <p className="text-sm text-muted-foreground">Stock: {product.inventory}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">PKR {product.price.toLocaleString()}</p>
+                    {product.featured && <Badge>Featured</Badge>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+// Admin Product Card
+const AdminProductCard = ({ product, categories }) => {
+  const category = categories.find(c => c.id === product.category_id);
+  
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <img src={product.images[0]} alt={product.name} className="w-full h-32 object-cover rounded mb-4" />
+        <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
+        <p className="text-sm text-muted-foreground mb-2">{category?.name}</p>
+        <p className="font-bold text-orange-500 mb-2">PKR {product.price.toLocaleString()}</p>
+        <p className="text-sm mb-4">Stock: {product.inventory}</p>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm">Edit</Button>
+          <Button variant="outline" size="sm" className="text-red-600">Delete</Button>
+          {product.featured && <Badge>Featured</Badge>}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 // Footer Component
 const Footer = () => {
   return (
