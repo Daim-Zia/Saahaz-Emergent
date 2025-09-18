@@ -37,8 +37,7 @@ import {
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
-// Temporary fix for development - use local backend to avoid CORS issues
-const API = process.env.NODE_ENV === 'development' ? 'http://localhost:8001/api' : `${BACKEND_URL}/api`;
+const API = `${BACKEND_URL}/api`;
 
 // Context for authentication and cart
 const AppContext = createContext();
