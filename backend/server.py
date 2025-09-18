@@ -107,10 +107,13 @@ class Order(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str
     items: List[CartItem]
+    subtotal: float
+    delivery_charge: float
     total_amount: float
     status: str = "pending"  # pending, confirmed, shipped, delivered, cancelled
     delivery_address: str
     phone: str
+    delivery_option: str = "standard"  # standard, express, next_day, free
     payment_method: str = "cod"  # cash on delivery
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -119,6 +122,10 @@ class OrderCreate(BaseModel):
     items: List[CartItem]
     delivery_address: str
     phone: str
+    delivery_option: Optional[str] = "standard"
+    delivery_charge: Optional[float] = 0
+    subtotal: Optional[float] = 0
+    total: Optional[float] = 0
 
 # Helper functions
 def verify_password(plain_password: str, hashed_password: str) -> bool:
