@@ -814,7 +814,7 @@ const AdminProductsTab = ({ products, setProducts, categories }) => {
         ...productForm,
         price: parseFloat(productForm.price),
         inventory: parseInt(productForm.inventory),
-        images: productForm.images.filter(img => img.trim() !== '')
+        images: Array.isArray(productForm.images) ? productForm.images.filter(img => img && img.trim() !== '') : []
       };
 
       const response = await axios.put(`${API}/products/${editingProduct.id}`, productData);
