@@ -2250,13 +2250,28 @@ const AppProvider = ({ children }) => {
     localStorage.removeItem('saahaz_cart');
   };
 
-  // Initialize auth from localStorage
+  // Initialize auth from localStorage and validate token
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      // In a real app, you'd validate the token with the backend
-    }
+    const initializeAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          // Validate token by fetching user profile
+          const response = await axios.get(`${API}/profile`);
+          setUser(response.data);
+          console.log('User authenticated:', response.data);
+        } catch (error) {
+          console.error('Token validation failed:', error);
+          // Token is invalid, clear it
+          localStorage.removeItem('token');
+          delete axios.defaults.headers.common['Authorization'];
+          setUser(null);
+        }
+      }
+    };
+
+    initializeAuth();
   }, []);
 
   const value = {
