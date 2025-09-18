@@ -1050,6 +1050,27 @@ const AdminCategoriesTab = ({ categories, setCategories }) => {
 
 // Admin Orders Tab
 const AdminOrdersTab = ({ orders, setOrders }) => {
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
+  const handleUpdateOrderStatus = async (orderId, newStatus) => {
+    try {
+      await axios.put(`${API}/orders/${orderId}/status?status=${newStatus}`);
+      setOrders(orders.map(order => 
+        order.id === orderId 
+          ? { ...order, status: newStatus, updated_at: new Date().toISOString() }
+          : order
+      ));
+      alert(`Order status updated to ${newStatus}!`);
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      alert('Error updating order status: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  const viewOrderDetails = (order) => {
+    setSelectedOrder(order);
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6">Orders Management</h2>
@@ -1105,16 +1126,26 @@ const AdminOrdersTab = ({ orders, setOrders }) => {
                 {orders.map(order => (
                   <tr key={order.id} className="border-b">
                     <td className="p-4 font-mono text-sm">{order.id.slice(0, 8)}...</td>
-                    <td className="p-4">{order.user_id}</td>
+                    <td className="p-4">{order.user_id?.slice(0, 8)}...</td>
                     <td className="p-4">{order.items.length} items</td>
                     <td className="p-4 font-semibold">PKR {order.total_amount.toLocaleString()}</td>
                     <td className="p-4">
-                      <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'}>
-                        {order.status}
-                      </Badge>
+                      <select
+                        value={order.status}
+                        onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
+                        className="p-1 border rounded text-sm"
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
                     </td>
                     <td className="p-4">
-                      <Button variant="outline" size="sm">View Details</Button>
+                      <Button variant="outline" size="sm" onClick={() => viewOrderDetails(order)}>
+                        View Details
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -1123,6 +1154,75 @@ const AdminOrdersTab = ({ orders, setOrders }) => {
           </div>
         </div>
       </div>
+
+      {/* Order Details Dialog */}
+      <Dialog open={selectedOrder !== null} onOpenChange={(open) => {
+        if (!open) setSelectedOrder(null);
+      }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Order Details</DialogTitle>
+          </DialogHeader>
+
+          {selectedOrder && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="font-semibold">Order ID:</label>
+                  <p className="font-mono text-sm">{selectedOrder.id}</p>
+                </div>
+                <div>
+                  <label className="font-semibold">Status:</label>
+                  <p className="capitalize">{selectedOrder.status}</p>
+                </div>
+                <div>
+                  <label className="font-semibold">Total Amount:</label>
+                  <p className="font-semibold text-orange-500">PKR {selectedOrder.total_amount.toLocaleString()}</p>
+                </div>
+                <div>
+                  <label className="font-semibold">Payment Method:</label>
+                  <p className="capitalize">{selectedOrder.payment_method}</p>
+                </div>
+              </div>
+
+              <div>
+                <label className="font-semibold">Delivery Address:</label>
+                <p>{selectedOrder.delivery_address}</p>
+              </div>
+
+              <div>
+                <label className="font-semibold">Phone:</label>
+                <p>{selectedOrder.phone}</p>
+              </div>
+
+              <div>
+                <label className="font-semibold">Items:</label>
+                <div className="space-y-2 mt-2">
+                  {selectedOrder.items.map((item, index) => (
+                    <div key={index} className="flex justify-between items-center p-2 border rounded">
+                      <div>
+                        <p className="font-medium">Product ID: {item.product_id.slice(0, 8)}...</p>
+                        <p className="text-sm text-muted-foreground">
+                          Quantity: {item.quantity}
+                          {item.size && ` | Size: ${item.size}`}
+                          {item.color && ` | Color: ${item.color}`}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="text-sm text-muted-foreground">
+                <p>Created: {new Date(selectedOrder.created_at).toLocaleString()}</p>
+                {selectedOrder.updated_at && (
+                  <p>Updated: {new Date(selectedOrder.updated_at).toLocaleString()}</p>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
