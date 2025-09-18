@@ -468,7 +468,7 @@ const FeaturedProductsSection = ({ products }) => {
         </div>
 
         <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
+          <Button variant="outline" size="lg" onClick={() => window.location.href = '/products'}>
             View All Products
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
