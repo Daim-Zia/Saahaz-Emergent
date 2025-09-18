@@ -373,6 +373,40 @@ class SaahazAPITester:
         )
         return success
 
+def test_specific_admin_login():
+    """Test the specific admin login functionality for test@saahaz.com"""
+    print("🚀 Testing Admin Login for test@saahaz.com")
+    print("=" * 60)
+    
+    tester = SaahazAPITester()
+    
+    # Test API connectivity first
+    print("\n📡 Testing API Connectivity...")
+    if not tester.test_api_root():
+        print("❌ API is not accessible. Cannot proceed with admin login test.")
+        return False
+    
+    # Test the specific admin login
+    print("\n👑 Testing Admin Login for test@saahaz.com...")
+    success, response_data = tester.test_admin_login_detailed("test@saahaz.com", "password")
+    
+    if success:
+        print("\n🎉 ADMIN LOGIN TEST COMPLETED SUCCESSFULLY")
+        print("✅ User can login with provided credentials")
+        print("✅ JWT token is properly generated and returned")
+        
+        user_data = response_data.get('user', {})
+        if user_data.get('is_admin'):
+            print("✅ User has admin privileges (is_admin = true)")
+        else:
+            print("❌ User does NOT have admin privileges (is_admin = false)")
+            
+        return True
+    else:
+        print("\n❌ ADMIN LOGIN TEST FAILED")
+        print("❌ User cannot login with provided credentials")
+        return False
+
 def main():
     print("🚀 Starting Saahaz.com API Testing...")
     print("=" * 60)
