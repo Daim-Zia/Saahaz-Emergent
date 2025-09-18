@@ -1204,11 +1204,24 @@ const AdminProductsTab = ({ products, setProducts, categories, showToast }) => {
     featured: false
   });
 
-  console.log('AdminProductsTab received:', { 
+  console.log('🔍 AdminProductsTab DEBUG:', { 
     productsCount: products ? products.length : 'undefined',
     products: products,
-    categoriesCount: categories ? categories.length : 'undefined'
+    categoriesCount: categories ? categories.length : 'undefined',
+    productType: typeof products,
+    isArray: Array.isArray(products)
   });
+
+  // Add debugging for empty products
+  if (!products || products.length === 0) {
+    console.log('🚨 AdminProductsTab: NO PRODUCTS FOUND!');
+    console.log('Products value:', products);
+    console.log('Products type:', typeof products);
+    console.log('Is Array?', Array.isArray(products));
+  } else {
+    console.log('✅ AdminProductsTab: Products loaded successfully:', products.length, 'products');
+    console.log('First product:', products[0]);
+  }
 
   const resetForm = () => {
     setProductForm({
