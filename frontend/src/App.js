@@ -1177,7 +1177,7 @@ const AdminProductsTab = ({ products, setProducts, categories, showToast }) => {
       setProducts(products.map(p => p.id === editingProduct.id ? response.data : p));
       setEditingProduct(null);
       resetForm();
-      alert('Product updated successfully!');
+      showToast('Product updated successfully!', 'success');
     } catch (error) {
       console.error('Error updating product:', error);
       let errorMessage = 'Unknown error occurred';
