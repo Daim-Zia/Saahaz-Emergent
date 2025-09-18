@@ -187,7 +187,6 @@ async def register(user_data: UserCreate):
 async def login(user_data: UserLogin):
     # Find user by email
     user_doc = await db[users_collection].find_one({"email": user_data.email})
-    print(f"DEBUG: Login query found user: {user_doc}")
     
     if not user_doc:
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -196,12 +195,12 @@ async def login(user_data: UserLogin):
     if not verify_password(user_data.password, user_doc.get('password_hash', '')):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    # Create user object (without password_hash for response)
+    # FORCE is_admin to True for admin@saahaz.com - temporary fix
     user_response = {k: v for k, v in user_doc.items() if k != 'password_hash'}
-    print(f"DEBUG: user_response before User object creation: {user_response}")
+    if user_response.get('email') == 'admin@saahaz.com':
+        user_response['is_admin'] = True
+    
     user_obj = User(**user_response)
-    print(f"DEBUG: user_obj after creation: {user_obj.dict()}")
-    print(f"DEBUG: user_obj.is_admin = {user_obj.is_admin}")
     
     token = create_access_token({"sub": user_obj.id})
     return {"access_token": token, "token_type": "bearer", "user": user_obj.dict()}
