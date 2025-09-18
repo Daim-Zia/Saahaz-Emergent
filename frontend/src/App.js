@@ -2832,8 +2832,12 @@ const AppContent = () => {
       />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/products" element={<ProductsPage />} />
+        <Route path="/categories" element={<CategoriesPage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/product/:productId" element={<ProductDetails />} />
         <Route path="/cart" element={<ShoppingCart />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/orders" element={<CustomerOrders />} />
         <Route path="/settings" element={<CustomerSettings />} />
         <Route path="/admin" element={<AdminDashboard />} />
