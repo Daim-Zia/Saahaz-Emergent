@@ -618,20 +618,17 @@ def main():
         return 1
 
 if __name__ == "__main__":
-    # Run the specific admin login test as requested
-    print("🎯 RUNNING SPECIFIC ADMIN LOGIN TEST")
-    print("Testing admin login for test@saahaz.com with password 'password'")
+    # Run the comprehensive order functionality test as requested
+    print("🎯 RUNNING COMPREHENSIVE ORDER FUNCTIONALITY TEST")
+    print("Testing order placement and retrieval functionality")
     print("=" * 70)
     
-    admin_test_success = test_specific_admin_login()
+    order_test_success = test_order_functionality_comprehensive()
     
     print("\n" + "=" * 70)
-    if admin_test_success:
-        print("✅ ADMIN LOGIN TEST COMPLETED SUCCESSFULLY")
+    if order_test_success:
+        print("✅ ORDER FUNCTIONALITY TEST COMPLETED SUCCESSFULLY")
     else:
-        print("❌ ADMIN LOGIN TEST FAILED")
+        print("❌ ORDER FUNCTIONALITY TEST FAILED")
     
-    print("\n🔄 Running full API test suite...")
-    full_test_result = main()
-    
-    sys.exit(0 if admin_test_success else 1)
+    sys.exit(0 if order_test_success else 1)
