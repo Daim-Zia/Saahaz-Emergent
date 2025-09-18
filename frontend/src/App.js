@@ -4322,13 +4322,20 @@ function App() {
 const AppContent = () => {
   const { cartCount } = useAppContext();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  
+  // Check if current route is admin
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
     <>
-      <Header 
-        onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        cartCount={cartCount}
-      />
+      {/* Only show Header for non-admin routes */}
+      {!isAdminRoute && (
+        <Header 
+          onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          cartCount={cartCount}
+        />
+      )}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<ProductsPage />} />
