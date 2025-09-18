@@ -2309,16 +2309,16 @@ const ProductDetails = () => {
 
   const handleAddToCart = () => {
     if (!selectedSize || !selectedColor) {
-      alert('Please select size and color');
+      showToast('Please select size and color', 'warning');
       return;
     }
     addToCart(product.id, quantity, selectedSize, selectedColor);
-    alert('Product added to cart!');
+    showToast('Product added to cart successfully!', 'success');
   };
 
   const handleAddToWishlist = async () => {
     if (!user) {
-      alert('Please login to add items to wishlist');
+      showToast('Please login to add items to wishlist', 'warning');
       return;
     }
 
@@ -2329,7 +2329,7 @@ const ProductDetails = () => {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         setIsInWishlist(false);
-        alert('Removed from wishlist!');
+        showToast('Removed from wishlist', 'info');
       } else {
         // Add to wishlist
         await axios.post(`${API}/wishlist`, {
@@ -2338,13 +2338,16 @@ const ProductDetails = () => {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         setIsInWishlist(true);
-        alert('Added to wishlist!');
+        showToast('Added to wishlist successfully!', 'success');
       }
     } catch (error) {
       console.error('Wishlist error:', error);
       // For now, simulate wishlist functionality since API might not be implemented
       setIsInWishlist(!isInWishlist);
-      alert(isInWishlist ? 'Removed from wishlist!' : 'Added to wishlist!');
+      showToast(
+        isInWishlist ? 'Removed from wishlist' : 'Added to wishlist successfully!', 
+        isInWishlist ? 'info' : 'success'
+      );
     }
   };
 
