@@ -1522,7 +1522,7 @@ const ProductDetails = () => {
                 onClick={handleAddToCart}
                 disabled={product.inventory === 0}
               >
-                <ShoppingCart className="mr-2 h-5 w-5" />
+                <ShoppingCartIcon className="mr-2 h-5 w-5" />
                 Add to Cart - PKR {(product.price * quantity).toLocaleString()}
               </Button>
               
