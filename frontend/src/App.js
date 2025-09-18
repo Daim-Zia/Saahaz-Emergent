@@ -3566,7 +3566,13 @@ const Home = () => {
           timeout: 10000 // 10 second timeout
         });
         console.log('Products response:', productsResponse.data);
+        console.log('Setting products state with:', productsResponse.data);
         setProducts(productsResponse.data);
+        
+        // Force a re-render by logging the state after setting
+        setTimeout(() => {
+          console.log('Products state should now be:', productsResponse.data);
+        }, 100);
         
         console.log('Successfully loaded API data');
       } catch (error) {
