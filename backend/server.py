@@ -195,7 +195,10 @@ async def login(user_data: UserLogin):
     
     # Create user object (without password_hash for response)
     user_response = {k: v for k, v in user_doc.items() if k != 'password_hash'}
+    print(f"DEBUG: user_response before User object creation: {user_response}")
     user_obj = User(**user_response)
+    print(f"DEBUG: user_obj after creation: {user_obj.dict()}")
+    print(f"DEBUG: user_obj.is_admin = {user_obj.is_admin}")
     
     token = create_access_token({"sub": user_obj.id})
     return {"access_token": token, "token_type": "bearer", "user": user_obj.dict()}
