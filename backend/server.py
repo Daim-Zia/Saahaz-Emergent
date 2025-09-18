@@ -138,10 +138,13 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid token")
         
-        user = await db[users_collection].find_one({"id": user_id})
-        if user is None:
+        user_doc = await db[users_collection].find_one({"id": user_id})
+        if user_doc is None:
             raise HTTPException(status_code=401, detail="User not found")
-        return User(**user)
+        
+        # Create user object (without password_hash)
+        user_response = {k: v for k, v in user_doc.items() if k != 'password_hash'}
+        return User(**user_response)
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
