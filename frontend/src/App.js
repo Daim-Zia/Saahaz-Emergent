@@ -1412,17 +1412,38 @@ const AdminProductsTab = ({ products, setProducts, categories, showToast }) => {
         </Button>
       </div>
 
+      {/* Debug Information */}
+      <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <h3 className="font-bold text-yellow-800">🔍 DEBUG INFO:</h3>
+        <p className="text-yellow-700">Products Array Length: {products ? products.length : 'undefined'}</p>
+        <p className="text-yellow-700">Products Type: {typeof products}</p>
+        <p className="text-yellow-700">Is Array: {Array.isArray(products) ? 'Yes' : 'No'}</p>
+        {products && products.length > 0 && (
+          <p className="text-green-700">✅ First Product: {products[0]?.name}</p>
+        )}
+        {(!products || products.length === 0) && (
+          <p className="text-red-700">❌ No products to display</p>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map(product => (
-          <AdminProductCard 
-            key={product.id} 
-            product={product} 
-            categories={categories}
-            onEdit={() => startEdit(product)}
-            onDelete={() => handleDeleteProduct(product.id)}
-            onToggleFeatured={() => handleToggleFeatured(product)}
-          />
-        ))}
+        {products && products.length > 0 ? (
+          products.map(product => (
+            <AdminProductCard 
+              key={product.id} 
+              product={product} 
+              categories={categories}
+              onEdit={() => startEdit(product)}
+              onDelete={() => handleDeleteProduct(product.id)}
+              onToggleFeatured={() => handleToggleFeatured(product)}
+            />
+          ))
+        ) : (
+          <div className="col-span-full text-center py-8">
+            <p className="text-gray-500">No products available</p>
+            <p className="text-sm text-gray-400 mt-2">Click "Add Product" to create your first product</p>
+          </div>
+        )}
       </div>
 
       {/* Add/Edit Product Dialog */}
