@@ -156,11 +156,11 @@ const Header = ({ onMenuClick, cartCount }) => {
                       </div>
                     </div>
                     <Separator />
-                    <Button variant="outline" className="w-full justify-start">
+                    <Button variant="outline" className="w-full justify-start" onClick={() => window.location.href = '/orders'}>
                       <Package className="mr-2 h-4 w-4" />
                       My Orders
                     </Button>
-                    <Button variant="outline" className="w-full justify-start">
+                    <Button variant="outline" className="w-full justify-start" onClick={() => window.location.href = '/settings'}>
                       <Settings className="mr-2 h-4 w-4" />
                       Settings
                     </Button>
