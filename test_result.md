@@ -289,7 +289,7 @@ backend:
 
 agent_communication:
   - agent: "main"
-    message: "Successfully completed orange theme restoration across all components. Updated CSS variables in index.css to use orange primary colors (21 90% 48%). All screenshots confirm consistent orange theme across homepage, products page, admin dashboard, and all UI components. Theme restoration is complete and working properly."
+    message: "🚨 CRITICAL ISSUES FIXED: 1) Font Visibility Problem - Fixed invisible text in ImageUpload component by changing 'text-white' to 'text-gray-700' for labels, 'border-gray-600' to 'border-gray-300' for inputs, and 'text-gray-400' to 'text-gray-600' for descriptions. 2) Product Adding Error - Enhanced error handling to properly serialize complex error objects instead of showing '[object Object]' by parsing error.response.data.detail arrays and extracting meaningful error messages. Applied fixes to add/edit/delete product and category operations. Screenshots confirm font visibility is now working properly in auth dialogs and admin interfaces."
   - agent: "testing"
     message: "Backend testing completed successfully. All core API endpoints working correctly after orange theme restoration: API health check ✅, Product APIs ✅, Categories APIs ✅, Authentication APIs ✅, Admin APIs properly secured ✅, Order functionality ✅. 13/15 tests passed - 2 'failures' were expected admin security responses. Backend functionality intact and working properly."
   - agent: "testing"
