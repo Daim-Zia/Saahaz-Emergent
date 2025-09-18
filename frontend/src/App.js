@@ -1363,7 +1363,7 @@ const AdminProductsTab = ({ products, setProducts, categories, showToast }) => {
       } else if (error.message) {
         errorMessage = error.message;
       }
-      alert('Error deleting product: ' + errorMessage);
+      showToast('Error deleting product: ' + errorMessage, 'error');
     }
   };
 
