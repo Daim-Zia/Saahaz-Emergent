@@ -349,6 +349,143 @@ async def create_order(order_data: OrderCreate, current_user: User = Depends(get
     await db[orders_collection].insert_one(order.dict())
     return order
 
+@api_router.post("/auth/google/session-data", response_model=GoogleUserData)
+async def process_google_session(request: Request, response: Response):
+    """Process Google OAuth session data from Emergent Auth"""
+    
+    # Get session ID from header
+    session_id = request.headers.get("X-Session-ID")
+    if not session_id:
+        raise HTTPException(status_code=400, detail="Session ID required in X-Session-ID header")
+    
+    # Call Emergent Auth API to get user data
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
+                headers={"X-Session-ID": session_id}
+            ) as resp:
+                if resp.status != 200:
+                    raise HTTPException(status_code=401, detail="Invalid session ID")
+                
+                user_data = await resp.json()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to verify session: {str(e)}")
+    
+    # Create or update user in database
+    existing_user = await db[users_collection].find_one({"email": user_data["email"]})
+    
+    if existing_user:
+        # User exists, use existing user
+        user_id = existing_user["id"]
+    else:
+        # Create new user
+        user_id = str(uuid.uuid4())
+        new_user = {
+            "id": user_id,
+            "email": user_data["email"],
+            "name": user_data["name"],
+            "password_hash": "",  # No password for Google users
+            "phone": "",
+            "address": "",
+            "is_admin": False,
+            "created_at": datetime.now(timezone.utc)
+        }
+        await db[users_collection].insert_one(new_user)
+    
+    # Store session token in database
+    session_expires = datetime.now(timezone.utc) + timedelta(days=7)
+    session_doc = {
+        "id": str(uuid.uuid4()),
+        "user_id": user_id,
+        "session_token": user_data["session_token"],
+        "expires_at": session_expires,
+        "created_at": datetime.now(timezone.utc)
+    }
+    await db[sessions_collection].insert_one(session_doc)
+    
+    # Set httpOnly cookie
+    response.set_cookie(
+        key="session_token",
+        value=user_data["session_token"],
+        max_age=7 * 24 * 60 * 60,  # 7 days
+        httponly=True,
+        secure=True,
+        samesite="none",
+        path="/"
+    )
+    
+    return GoogleUserData(**user_data)
+
+@api_router.post("/auth/logout")
+async def logout(request: Request, response: Response):
+    """Logout user and clear session"""
+    
+    # Get session token from cookie or header
+    session_token = request.cookies.get("session_token")
+    if not session_token:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            session_token = auth_header.split(" ")[1]
+    
+    if session_token:
+        # Delete session from database
+        await db[sessions_collection].delete_many({"session_token": session_token})
+    
+    # Clear cookie
+    response.delete_cookie(
+        key="session_token",
+        path="/",
+        samesite="none"
+    )
+    
+    return {"message": "Logged out successfully"}
+
+# Updated authentication helper to check session tokens
+async def get_current_user_with_session(request: Request) -> User:
+    """Get current user from JWT token or session token"""
+    
+    # First try to get session token from cookie
+    session_token = request.cookies.get("session_token")
+    
+    if session_token:
+        # Check session token
+        session_doc = await db[sessions_collection].find_one({
+            "session_token": session_token,
+            "expires_at": {"$gt": datetime.now(timezone.utc)}
+        })
+        
+        if session_doc:
+            # Get user from session
+            user_doc = await db[users_collection].find_one({"id": session_doc["user_id"]})
+            if user_doc:
+                user_response = {k: v for k, v in user_doc.items() if k != 'password_hash'}
+                return User(**user_response)
+    
+    # Fallback to JWT token
+    try:
+        # Try to get JWT token from Authorization header
+        auth_header = request.headers.get("Authorization")
+        if not auth_header or not auth_header.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="Not authenticated")
+        
+        token = auth_header.split(" ")[1]
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        
+        user_doc = await db[users_collection].find_one({"id": user_id})
+        if not user_doc:
+            raise HTTPException(status_code=401, detail="User not found")
+        
+        user_response = {k: v for k, v in user_doc.items() if k != 'password_hash'}
+        return User(**user_response)
+        
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
 @api_router.get("/orders", response_model=List[Order])
 async def get_orders(current_user: User = Depends(get_current_user)):
     if current_user.is_admin:
