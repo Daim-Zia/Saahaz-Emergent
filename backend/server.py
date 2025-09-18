@@ -175,12 +175,19 @@ async def register(user_data: UserCreate):
 
 @api_router.post("/auth/login", response_model=dict)
 async def login(user_data: UserLogin):
-    user = await db[users_collection].find_one({"email": user_data.email})
-    if not user or not verify_password(user_data.password, user['password_hash']):
+    user_doc = await db[users_collection].find_one({"email": user_data.email})
+    if not user_doc:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    token = create_access_token({"sub": user['id']})
-    user_obj = User(**user)
+    # Check password
+    if not verify_password(user_data.password, user_doc.get('password_hash', '')):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    # Create user object (without password_hash for response)
+    user_response = {k: v for k, v in user_doc.items() if k != 'password_hash'}
+    user_obj = User(**user_response)
+    
+    token = create_access_token({"sub": user_obj.id})
     return {"access_token": token, "token_type": "bearer", "user": user_obj.dict()}
 
 # Category routes
