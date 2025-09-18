@@ -695,7 +695,7 @@ const AdminDashboard = () => {
   );
 };
 
-// Image Upload Component - Enhanced with better handling
+// Image Upload Component - File Upload Only
 const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
   const [uploading, setUploading] = useState(false);
   
@@ -709,48 +709,40 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
     const promises = files.map(file => {
       return new Promise((resolve, reject) => {
         if (file.type.startsWith('image/')) {
-          // For now, let's use a placeholder approach since Base64 images might be too large
-          // In a production environment, you'd upload to a cloud service like S3, Cloudinary, etc.
-          
-          // Create a temporary blob URL for preview
           const reader = new FileReader();
           reader.onload = (e) => {
-            // Instead of using the full Base64, let's use a high-quality placeholder image
-            // This demonstrates that the upload functionality works
-            const placeholderImages = [
-              'https://images.unsplash.com/photo-1562157873-818bc0726f68?crop=entropy&cs=srgb&fm=jpg&q=85&w=400&h=400',
-              'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?crop=entropy&cs=srgb&fm=jpg&q=85&w=400&h=400',
-              'https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?crop=entropy&cs=srgb&fm=jpg&q=85&w=400&h=400',
-              'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?crop=entropy&cs=srgb&fm=jpg&q=85&w=400&h=400',
-              'https://images.unsplash.com/photo-1516762689617-e1cfddf819d1?crop=entropy&cs=srgb&fm=jpg&q=85&w=400&h=400'
-            ];
-            
-            // Use a random placeholder image to demonstrate uploaded image functionality
-            const randomIndex = Math.floor(Math.random() * placeholderImages.length);
-            resolve(placeholderImages[randomIndex]);
+            // Get the base64 result
+            const base64Result = e.target.result;
+            console.log('Image uploaded successfully, size:', base64Result.length);
+            resolve(base64Result);
           };
-          reader.onerror = reject;
+          reader.onerror = (error) => {
+            console.error('FileReader error:', error);
+            reject(error);
+          };
           reader.readAsDataURL(file);
         } else {
-          reject(new Error('Invalid file type'));
+          reject(new Error('Invalid file type. Please upload an image file.'));
         }
       });
     });
 
     Promise.all(promises)
       .then(newImages => {
+        console.log('Processing uploaded images:', newImages.length);
         setImages(prev => {
           const currentImages = Array.isArray(prev) ? prev : (prev ? [prev] : []);
           const combined = [...currentImages, ...newImages];
-          return combined.slice(0, maxImages); // Limit to maxImages
+          const result = combined.slice(0, maxImages); // Limit to maxImages
+          console.log('Updated images array:', result.length);
+          return result;
         });
         setUploading(false);
-        // Show success message
-        alert(`Successfully uploaded ${newImages.length} image(s)! (Using demo placeholder images for now)`);
+        alert(`Successfully uploaded ${newImages.length} image(s)!`);
       })
       .catch(error => {
         console.error('Error uploading images:', error);
-        alert('Error uploading images. Please try again.');
+        alert('Error uploading images: ' + error.message);
         setUploading(false);
       });
   };
@@ -760,30 +752,6 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
       const currentImages = Array.isArray(prev) ? prev : (prev ? [prev] : []);
       return currentImages.filter((_, i) => i !== index);
     });
-  };
-
-  const addImageUrl = () => {
-    const url = prompt('Enter image URL (try a direct image link like from Unsplash):');
-    if (url && url.trim()) {
-      // Test if URL is valid by creating an image element
-      const img = new Image();
-      img.onload = () => {
-        setImages(prev => {
-          const currentImages = Array.isArray(prev) ? prev : (prev ? [prev] : []);
-          if (currentImages.length < maxImages) {
-            return [...currentImages, url.trim()];
-          } else {
-            alert(`Maximum ${maxImages} images allowed`);
-            return currentImages;
-          }
-        });
-        alert('Image URL added successfully!');
-      };
-      img.onerror = () => {
-        alert('Invalid image URL. Please check the URL and try again. Try using a direct image link (ending in .jpg, .png, etc.) from a site like Unsplash.');
-      };
-      img.src = url.trim();
-    }
   };
 
   return (
@@ -802,7 +770,11 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
               alt={`Image ${index + 1}`}
               className="w-full h-24 object-cover rounded border border-gray-300"
               onError={(e) => {
-                e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjMzc0MTUxIi8+CjxwYXRoIGQ9Ik0xMiA5VjEzTTE1IDEwLjVWMTEuNUw5IDEyLjVWMTAuNU0xMiAxNkg5TDE1IDE0SDE4VjEwSDZWMTRIMTJaIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=';
+                console.error('Image display error for:', image.substring(0, 50));
+                e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzBDMTA4LjI4NCA3MCA1Mi4zIDc1IDYwLjU4NCA3NUw2Mi4zMzMgOTEuNjY2N0g2Ny42NjZMNzIuNTMzIDk4LjQyNzlINjEuNSIgc3Ryb2tlPSIjOUNBM0FGIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNMTAwIDEzMEM5MS43MTU5IDEzMCAxMzguNSAxMjUgMTMwLjIxNiAxMjVMMTI4LjQ2NyAxMDguMzMzSDEyMy4xMzRMMTE4LjI2NyAxMDEuNTcySDEyOS4zIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNDAiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+';
+              }}
+              onLoad={() => {
+                console.log('Image loaded successfully');
               }}
             />
             <button
@@ -846,21 +818,10 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
             <span>{uploading ? 'Uploading...' : 'Upload Images'}</span>
           </Button>
         </label>
-        
-        <Button 
-          type="button" 
-          variant="outline" 
-          size="sm"
-          onClick={addImageUrl}
-          disabled={imageArray.length >= maxImages}
-          className="border-gray-300 text-gray-700 hover:bg-gray-50"
-        >
-          Add URL
-        </Button>
       </div>
       
       <p className="text-xs text-gray-600">
-        Upload images or add URLs. Maximum {maxImages} images. Supported: JPG, PNG, WebP
+        Upload images from your device. Maximum {maxImages} images. Supported: JPG, PNG, WebP
       </p>
     </div>
   );
