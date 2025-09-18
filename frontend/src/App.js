@@ -1065,6 +1065,22 @@ const AdminCategoriesTab = ({ categories, setCategories }) => {
 // Admin Orders Tab
 const AdminOrdersTab = ({ orders, setOrders }) => {
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredOrders, setFilteredOrders] = useState(orders);
+
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredOrders(orders);
+    } else {
+      const filtered = orders.filter(order => 
+        order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.user_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.phone.includes(searchQuery) ||
+        order.delivery_address.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredOrders(filtered);
+    }
+  }, [searchQuery, orders]);
 
   const handleUpdateOrderStatus = async (orderId, newStatus) => {
     try {
@@ -1085,23 +1101,123 @@ const AdminOrdersTab = ({ orders, setOrders }) => {
     setSelectedOrder(order);
   };
 
+  const printOrderDetails = (order) => {
+    const printContent = `
+      <html>
+        <head>
+          <title>Order Details - ${order.id.slice(0, 8)}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #f97316; padding-bottom: 20px; }
+            .header h1 { color: #f97316; margin: 0; }
+            .order-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+            .info-box { border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
+            .info-box h3 { margin: 0 0 10px 0; color: #333; }
+            .items-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            .items-table th, .items-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+            .items-table th { background-color: #f97316; color: white; }
+            .total-section { margin-top: 20px; text-align: right; }
+            .total-section .total { font-size: 18px; font-weight: bold; color: #f97316; }
+            .status { padding: 5px 10px; border-radius: 15px; font-weight: bold; text-transform: uppercase; }
+            .status.pending { background-color: #fef3c7; color: #92400e; }
+            .status.confirmed { background-color: #dbeafe; color: #1e40af; }
+            .status.shipped { background-color: #e0e7ff; color: #5b21b6; }
+            .status.delivered { background-color: #dcfce7; color: #166534; }
+            .status.cancelled { background-color: #fee2e2; color: #dc2626; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Saahaz.com</h1>
+            <h2>Order Details</h2>
+            <p>Generated on: ${new Date().toLocaleString()}</p>
+          </div>
+          
+          <div class="order-info">
+            <div class="info-box">
+              <h3>Order Information</h3>
+              <p><strong>Order ID:</strong> ${order.id}</p>
+              <p><strong>Status:</strong> <span class="status ${order.status}">${order.status}</span></p>
+              <p><strong>Order Date:</strong> ${new Date(order.created_at).toLocaleString()}</p>
+              <p><strong>Payment Method:</strong> ${order.payment_method.toUpperCase()}</p>
+            </div>
+            
+            <div class="info-box">
+              <h3>Customer Information</h3>
+              <p><strong>Customer ID:</strong> ${order.user_id.slice(0, 8)}...</p>
+              <p><strong>Phone:</strong> ${order.phone}</p>
+              <p><strong>Delivery Address:</strong><br>${order.delivery_address}</p>
+            </div>
+          </div>
+          
+          <h3>Order Items</h3>
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>Product ID</th>
+                <th>Quantity</th>
+                <th>Size</th>
+                <th>Color</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.items.map(item => `
+                <tr>
+                  <td>${item.product_id.slice(0, 8)}...</td>
+                  <td>${item.quantity}</td>
+                  <td>${item.size || 'N/A'}</td>
+                  <td>${item.color || 'N/A'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          
+          <div class="total-section">
+            <p><strong>Total Items:</strong> ${order.items.length}</p>
+            <p class="total">Total Amount: PKR ${order.total_amount.toLocaleString()}</p>
+          </div>
+        </body>
+      </html>
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">Orders Management</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Orders Management</h2>
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search orders by ID, customer, phone, or address..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 w-80"
+            />
+          </div>
+        </div>
+      </div>
       
       <div className="bg-white rounded-lg shadow">
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <Card>
               <CardContent className="p-4 text-center">
-                <h3 className="text-2xl font-bold text-orange-500">{orders.length}</h3>
-                <p className="text-sm text-muted-foreground">Total Orders</p>
+                <h3 className="text-2xl font-bold text-orange-500">{filteredOrders.length}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {searchQuery ? 'Filtered Orders' : 'Total Orders'}
+                </p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
                 <h3 className="text-2xl font-bold text-green-500">
-                  {orders.filter(o => o.status === 'confirmed').length}
+                  {filteredOrders.filter(o => o.status === 'confirmed').length}
                 </h3>
                 <p className="text-sm text-muted-foreground">Confirmed</p>
               </CardContent>
@@ -1109,7 +1225,7 @@ const AdminOrdersTab = ({ orders, setOrders }) => {
             <Card>
               <CardContent className="p-4 text-center">
                 <h3 className="text-2xl font-bold text-blue-500">
-                  {orders.filter(o => o.status === 'shipped').length}
+                  {filteredOrders.filter(o => o.status === 'shipped').length}
                 </h3>
                 <p className="text-sm text-muted-foreground">Shipped</p>
               </CardContent>
@@ -1117,7 +1233,7 @@ const AdminOrdersTab = ({ orders, setOrders }) => {
             <Card>
               <CardContent className="p-4 text-center">
                 <h3 className="text-2xl font-bold text-purple-500">
-                  PKR {orders.reduce((sum, order) => sum + order.total_amount, 0).toLocaleString()}
+                  PKR {filteredOrders.reduce((sum, order) => sum + order.total_amount, 0).toLocaleString()}
                 </h3>
                 <p className="text-sm text-muted-foreground">Total Revenue</p>
               </CardContent>
@@ -1137,7 +1253,7 @@ const AdminOrdersTab = ({ orders, setOrders }) => {
                 </tr>
               </thead>
               <tbody>
-                {orders.map(order => (
+                {filteredOrders.map(order => (
                   <tr key={order.id} className="border-b">
                     <td className="p-4 font-mono text-sm">{order.id.slice(0, 8)}...</td>
                     <td className="p-4">{order.user_id?.slice(0, 8)}...</td>
@@ -1157,15 +1273,28 @@ const AdminOrdersTab = ({ orders, setOrders }) => {
                       </select>
                     </td>
                     <td className="p-4">
-                      <Button variant="outline" size="sm" onClick={() => viewOrderDetails(order)}>
-                        View Details
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => viewOrderDetails(order)}>
+                          View Details
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => printOrderDetails(order)}>
+                          Print
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+
+          {filteredOrders.length === 0 && searchQuery && (
+            <div className="text-center py-8">
+              <Search className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-lg font-medium mb-2">No orders found</h3>
+              <p className="text-muted-foreground">Try adjusting your search query.</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1173,57 +1302,89 @@ const AdminOrdersTab = ({ orders, setOrders }) => {
       <Dialog open={selectedOrder !== null} onOpenChange={(open) => {
         if (!open) setSelectedOrder(null);
       }}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Order Details</DialogTitle>
+            <DialogTitle className="flex items-center justify-between">
+              Order Details
+              {selectedOrder && (
+                <Button variant="outline" onClick={() => printOrderDetails(selectedOrder)}>
+                  Print Order
+                </Button>
+              )}
+            </DialogTitle>
           </DialogHeader>
 
           {selectedOrder && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="font-semibold">Order ID:</label>
-                  <p className="font-mono text-sm">{selectedOrder.id}</p>
+                  <h4 className="font-semibold mb-3">Order Information</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Order ID:</span>
+                      <span className="font-mono text-sm">{selectedOrder.id}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Status:</span>
+                      <Badge variant={selectedOrder.status === 'delivered' ? 'default' : 'secondary'}>
+                        {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Order Date:</span>
+                      <span>{new Date(selectedOrder.created_at).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Payment Method:</span>
+                      <span className="uppercase">{selectedOrder.payment_method}</span>
+                    </div>
+                  </div>
                 </div>
+
                 <div>
-                  <label className="font-semibold">Status:</label>
-                  <p className="capitalize">{selectedOrder.status}</p>
-                </div>
-                <div>
-                  <label className="font-semibold">Total Amount:</label>
-                  <p className="font-semibold text-orange-500">PKR {selectedOrder.total_amount.toLocaleString()}</p>
-                </div>
-                <div>
-                  <label className="font-semibold">Payment Method:</label>
-                  <p className="capitalize">{selectedOrder.payment_method}</p>
+                  <h4 className="font-semibold mb-3">Customer Information</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Customer ID:</span>
+                      <span className="font-mono text-sm">{selectedOrder.user_id.slice(0, 8)}...</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Phone:</span>
+                      <span>{selectedOrder.phone}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <div>
-                <label className="font-semibold">Delivery Address:</label>
-                <p>{selectedOrder.delivery_address}</p>
+                <h4 className="font-semibold mb-3">Delivery Address</h4>
+                <p className="text-sm bg-gray-50 p-3 rounded">{selectedOrder.delivery_address}</p>
               </div>
 
               <div>
-                <label className="font-semibold">Phone:</label>
-                <p>{selectedOrder.phone}</p>
-              </div>
-
-              <div>
-                <label className="font-semibold">Items:</label>
-                <div className="space-y-2 mt-2">
+                <h4 className="font-semibold mb-3">Order Items</h4>
+                <div className="space-y-3">
                   {selectedOrder.items.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center p-2 border rounded">
+                    <div key={index} className="flex justify-between items-center p-3 border rounded">
                       <div>
                         <p className="font-medium">Product ID: {item.product_id.slice(0, 8)}...</p>
-                        <p className="text-sm text-muted-foreground">
-                          Quantity: {item.quantity}
-                          {item.size && ` | Size: ${item.size}`}
-                          {item.color && ` | Color: ${item.color}`}
-                        </p>
+                        <div className="text-sm text-muted-foreground space-x-4">
+                          <span>Quantity: {item.quantity}</span>
+                          {item.size && <span>Size: {item.size}</span>}
+                          {item.color && <span>Color: {item.color}</span>}
+                        </div>
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-semibold">Total Amount:</span>
+                  <span className="text-xl font-bold text-orange-500">
+                    PKR {selectedOrder.total_amount.toLocaleString()}
+                  </span>
                 </div>
               </div>
 
