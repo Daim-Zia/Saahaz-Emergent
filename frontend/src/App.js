@@ -1122,7 +1122,10 @@ const AdminProductsTab = ({ products, setProducts, categories }) => {
             <div>
               <ImageUpload 
                 images={productForm.images} 
-                setImages={(images) => setProductForm({...productForm, images})}
+                setImages={(newImages) => {
+                  console.log('Setting product form images to:', newImages);
+                  setProductForm(prev => ({...prev, images: newImages}));
+                }}
                 maxImages={5}
               />
             </div>
