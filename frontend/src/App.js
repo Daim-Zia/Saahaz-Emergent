@@ -804,6 +804,7 @@ const AdminDashboard = () => {
   const [categories, setCategories] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { toast, showToast, hideToast } = useToast();
 
   useEffect(() => {
     if (!user || !user.is_admin) {
