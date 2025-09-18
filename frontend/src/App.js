@@ -2058,6 +2058,24 @@ const AppProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Initialize cart from localStorage
+  useEffect(() => {
+    const savedCart = localStorage.getItem('saahaz_cart');
+    if (savedCart) {
+      try {
+        setCart(JSON.parse(savedCart));
+      } catch (error) {
+        console.error('Error loading cart from localStorage:', error);
+        localStorage.removeItem('saahaz_cart');
+      }
+    }
+  }, []);
+
+  // Save cart to localStorage whenever cart changes
+  useEffect(() => {
+    localStorage.setItem('saahaz_cart', JSON.stringify(cart));
+  }, [cart]);
+
   // Auth functions
   const login = async (email, password) => {
     try {
@@ -2095,6 +2113,7 @@ const AppProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('saahaz_cart'); // Clear cart on logout
     delete axios.defaults.headers.common['Authorization'];
     setUser(null);
     setCart([]);
@@ -2103,45 +2122,71 @@ const AppProvider = ({ children }) => {
   // Cart functions
   const addToCart = (productId, quantity = 1, size = null, color = null) => {
     setCart(prevCart => {
-      const existingItem = prevCart.find(item => 
+      const existingItemIndex = prevCart.findIndex(item => 
         item.product_id === productId && 
         item.size === size && 
         item.color === color
       );
-      if (existingItem) {
-        return prevCart.map(item =>
-          item.product_id === productId && item.size === size && item.color === color
+      
+      let newCart;
+      if (existingItemIndex >= 0) {
+        // Update existing item
+        newCart = prevCart.map((item, index) =>
+          index === existingItemIndex
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
+      } else {
+        // Add new item
+        newCart = [...prevCart, { 
+          product_id: productId, 
+          quantity, 
+          size, 
+          color,
+          id: Date.now() // Add unique ID for easier management
+        }];
       }
-      return [...prevCart, { product_id: productId, quantity, size, color }];
+      
+      console.log('Cart updated:', newCart); // Debug log
+      return newCart;
     });
   };
 
-  const removeFromCart = (productId) => {
-    setCart(prevCart => prevCart.filter(item => item.product_id !== productId));
+  const removeFromCart = (productId, size = null, color = null) => {
+    setCart(prevCart => {
+      const newCart = prevCart.filter(item => 
+        !(item.product_id === productId && item.size === size && item.color === color)
+      );
+      console.log('Item removed from cart:', newCart); // Debug log
+      return newCart;
+    });
   };
 
-  const updateCartQuantity = (productId, quantity) => {
+  const updateCartQuantity = (productId, quantity, size = null, color = null) => {
     if (quantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(productId, size, color);
       return;
     }
-    setCart(prevCart =>
-      prevCart.map(item =>
-        item.product_id === productId
+    setCart(prevCart => {
+      const newCart = prevCart.map(item =>
+        item.product_id === productId && item.size === size && item.color === color
           ? { ...item, quantity }
           : item
-      )
-    );
+      );
+      console.log('Cart quantity updated:', newCart); // Debug log
+      return newCart;
+    });
   };
 
   const getCartTotal = () => {
-    return cart.reduce((total, item) => {
-      const product = mockProducts.find(p => p.id === item.product_id);
-      return total + (product ? product.price * item.quantity : 0);
-    }, 0);
+    // This would need product prices, for now return 0
+    // In real implementation, we'd fetch product prices
+    return 0;
+  };
+
+  const clearCart = () => {
+    setCart([]);
+    localStorage.removeItem('saahaz_cart');
   };
 
   // Initialize auth from localStorage
@@ -2164,8 +2209,11 @@ const AppProvider = ({ children }) => {
     removeFromCart,
     updateCartQuantity,
     getCartTotal,
+    clearCart,
     cartCount: cart.reduce((total, item) => total + item.quantity, 0)
   };
+
+  console.log('Cart state in context:', cart); // Debug log
 
   return (
     <AppContext.Provider value={value}>
