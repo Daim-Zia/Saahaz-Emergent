@@ -1110,6 +1110,12 @@ const AdminProductsTab = ({ products, setProducts, categories, showToast }) => {
     featured: false
   });
 
+  console.log('AdminProductsTab received:', { 
+    productsCount: products ? products.length : 'undefined',
+    products: products,
+    categoriesCount: categories ? categories.length : 'undefined'
+  });
+
   const resetForm = () => {
     setProductForm({
       name: '',
