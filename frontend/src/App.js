@@ -3053,7 +3053,7 @@ const CustomerOrders = () => {
           
           <div class="footer">
             <p>Thank you for shopping with Saahaz.com!</p>
-            <p>For support, contact us at info@saahaz.com or +92 XXX XXXXXXX</p>
+            <p>For support, contact us at info@saahaz.com or +92 340 6098662</p>
             <p>Generated on: ${new Date().toLocaleString()}</p>
           </div>
         </body>
