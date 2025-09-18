@@ -1202,7 +1202,7 @@ const AdminProductsTab = ({ products, setProducts, categories, showToast }) => {
     try {
       await axios.delete(`${API}/products/${productId}`);
       setProducts(products.filter(p => p.id !== productId));
-      alert('Product deleted successfully!');
+      showToast('Product deleted successfully!', 'success');
     } catch (error) {
       console.error('Error deleting product:', error);
       let errorMessage = 'Unknown error occurred';
