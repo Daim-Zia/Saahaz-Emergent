@@ -866,13 +866,21 @@ const AdminProductsTab = ({ products, setProducts, categories }) => {
         images: Array.isArray(productForm.images) ? productForm.images.filter(img => img && img.trim() !== '') : []
       };
 
+      console.log('Saving product with data:', {
+        ...productData,
+        images: productData.images.map(img => `${img.substring(0, 50)}... (length: ${img.length})`)
+      });
+
       const response = await axios.post(`${API}/products`, productData);
+      console.log('Product save response:', response.data);
+      
       setProducts([...products, response.data]);
       setIsAddingProduct(false);
       resetForm();
       alert('Product added successfully!');
     } catch (error) {
       console.error('Error adding product:', error);
+      console.error('Error response:', error.response?.data);
       let errorMessage = 'Unknown error occurred';
       if (error.response?.data?.detail) {
         if (Array.isArray(error.response.data.detail)) {
