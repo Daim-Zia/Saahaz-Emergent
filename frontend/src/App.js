@@ -870,7 +870,7 @@ const AdminProductsTab = ({ products, setProducts, categories }) => {
       description: product.description,
       price: product.price.toString(),
       category_id: product.category_id,
-      images: product.images.length > 0 ? product.images : [''],
+      images: Array.isArray(product.images) ? product.images : (product.images ? [product.images] : []),
       sizes: product.sizes,
       colors: product.colors,
       inventory: product.inventory.toString(),
