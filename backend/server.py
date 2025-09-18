@@ -208,6 +208,33 @@ async def create_category(category_data: CategoryCreate, current_user: User = De
     await db[categories_collection].insert_one(category.dict())
     return category
 
+@api_router.put("/categories/{category_id}", response_model=Category)
+async def update_category(category_id: str, category_data: CategoryCreate, current_user: User = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    result = await db[categories_collection].update_one(
+        {"id": category_id}, 
+        {"$set": category_data.dict()}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    category = await db[categories_collection].find_one({"id": category_id})
+    return Category(**category)
+
+@api_router.delete("/categories/{category_id}")
+async def delete_category(category_id: str, current_user: User = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    result = await db[categories_collection].delete_one({"id": category_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    return {"message": "Category deleted successfully"}
+
 # Product routes
 @api_router.get("/products", response_model=List[Product])
 async def get_products(category_id: Optional[str] = None, featured: Optional[bool] = None):
