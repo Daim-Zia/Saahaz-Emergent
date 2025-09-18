@@ -1023,7 +1023,6 @@ const AdminDashboard = () => {
             <Button 
               variant="outline" 
               onClick={() => {
-                const { logout } = useAppContext();
                 logout();
                 window.location.href = '/';
               }}
