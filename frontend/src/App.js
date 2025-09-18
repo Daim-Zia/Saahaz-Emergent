@@ -1352,6 +1352,592 @@ const AdminProductCard = ({ product, categories, onEdit, onDelete, onToggleFeatu
   );
 };
 
+// Product Details Component
+const ProductDetails = () => {
+  const { productId } = useParams();
+  const [product, setProduct] = useState(null);
+  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
+  const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const { addToCart, user } = useAppContext();
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await axios.get(`${API}/products/${productId}`);
+        setProduct(response.data);
+        setSelectedSize(response.data.sizes[0] || '');
+        setSelectedColor(response.data.colors[0] || '');
+      } catch (error) {
+        console.error('Error fetching product:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (productId) {
+      fetchProduct();
+    }
+  }, [productId]);
+
+  const handleAddToCart = () => {
+    if (!selectedSize || !selectedColor) {
+      alert('Please select size and color');
+      return;
+    }
+    addToCart(product.id, quantity, selectedSize, selectedColor);
+    alert('Product added to cart!');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="loading-skeleton w-32 h-32 rounded-full mx-auto mb-4"></div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Product Not Found</h2>
+          <Button onClick={() => window.history.back()}>Go Back</Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Product Images */}
+          <div className="space-y-4">
+            <div className="aspect-square overflow-hidden rounded-lg">
+              <img
+                src={product.images[0]}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            {product.images.length > 1 && (
+              <div className="grid grid-cols-4 gap-2">
+                {product.images.slice(1).map((image, index) => (
+                  <div key={index} className="aspect-square overflow-hidden rounded-lg">
+                    <img
+                      src={image}
+                      alt={`${product.name} ${index + 2}`}
+                      className="w-full h-full object-cover cursor-pointer hover:opacity-80"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Product Info */}
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
+              <p className="text-2xl font-bold text-orange-500">PKR {product.price.toLocaleString()}</p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Description</h3>
+              <p className="text-muted-foreground">{product.description}</p>
+            </div>
+
+            {/* Size Selection */}
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Size</h3>
+              <div className="flex flex-wrap gap-2">
+                {product.sizes.map(size => (
+                  <Button
+                    key={size}
+                    variant={selectedSize === size ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedSize(size)}
+                  >
+                    {size}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Color Selection */}
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Color</h3>
+              <div className="flex flex-wrap gap-2">
+                {product.colors.map(color => (
+                  <Button
+                    key={color}
+                    variant={selectedColor === color ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedColor(color)}
+                  >
+                    {color}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quantity */}
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Quantity</h3>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <span className="px-4 py-2 border rounded">{quantity}</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setQuantity(quantity + 1)}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Stock Info */}
+            <div className="text-sm text-muted-foreground">
+              {product.inventory > 0 ? (
+                <span className="text-green-600">✓ In Stock ({product.inventory} available)</span>
+              ) : (
+                <span className="text-red-600">✗ Out of Stock</span>
+              )}
+            </div>
+
+            {/* Add to Cart */}
+            <div className="space-y-4">
+              <Button
+                size="lg"
+                className="w-full bg-orange-500 hover:bg-orange-600"
+                onClick={handleAddToCart}
+                disabled={product.inventory === 0}
+              >
+                <ShoppingCart className="mr-2 h-5 w-5" />
+                Add to Cart - PKR {(product.price * quantity).toLocaleString()}
+              </Button>
+              
+              {user && (
+                <Button variant="outline" size="lg" className="w-full">
+                  <Heart className="mr-2 h-5 w-5" />
+                  Add to Wishlist
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Shopping Cart Component
+const ShoppingCart = () => {
+  const { cart, updateCartQuantity, removeFromCart, getCartTotal } = useAppContext();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCartProducts = async () => {
+      try {
+        const productPromises = cart.map(item =>
+          axios.get(`${API}/products/${item.product_id}`)
+        );
+        const responses = await Promise.all(productPromises);
+        setProducts(responses.map(response => response.data));
+      } catch (error) {
+        console.error('Error fetching cart products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (cart.length > 0) {
+      fetchCartProducts();
+    } else {
+      setLoading(false);
+    }
+  }, [cart]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="loading-skeleton w-32 h-32 rounded-full mx-auto mb-4"></div>
+      </div>
+    );
+  }
+
+  if (cart.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <ShoppingCart className="h-24 w-24 mx-auto mb-4 text-muted-foreground" />
+          <h2 className="text-2xl font-bold mb-4">Your Cart is Empty</h2>
+          <p className="text-muted-foreground mb-6">Add some products to get started!</p>
+          <Button onClick={() => window.location.href = '/'}>
+            Continue Shopping
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4">
+        <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Cart Items */}
+          <div className="lg:col-span-2 space-y-4">
+            {cart.map((item, index) => {
+              const product = products.find(p => p.id === item.product_id);
+              if (!product) return null;
+
+              return (
+                <Card key={`${item.product_id}-${index}`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-4">
+                      <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="w-20 h-20 object-cover rounded"
+                      />
+                      <div className="flex-1">
+                        <h3 className="font-semibold">{product.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {item.size && `Size: ${item.size}`}
+                          {item.size && item.color && ' | '}
+                          {item.color && `Color: ${item.color}`}
+                        </p>
+                        <p className="font-bold text-orange-500">PKR {product.price.toLocaleString()}</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => updateCartQuantity(item.product_id, item.quantity - 1)}
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="px-3 py-1 border rounded">{item.quantity}</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => updateCartQuantity(item.product_id, item.quantity + 1)}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold">PKR {(product.price * item.quantity).toLocaleString()}</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 mt-2"
+                          onClick={() => removeFromCart(item.product_id)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Order Summary */}
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Order Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span>PKR {getCartTotal().toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Delivery</span>
+                  <span className="text-green-600">FREE</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between font-bold text-lg">
+                  <span>Total</span>
+                  <span>PKR {getCartTotal().toLocaleString()}</span>
+                </div>
+                <Button size="lg" className="w-full bg-orange-500 hover:bg-orange-600">
+                  Proceed to Checkout
+                </Button>
+                <p className="text-sm text-muted-foreground text-center">
+                  Cash on Delivery Available
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Customer Orders Component
+const CustomerOrders = () => {
+  const { user } = useAppContext();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await axios.get(`${API}/orders`);
+        setOrders(response.data);
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchOrders();
+    }
+  }, [user]);
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Please Login</h2>
+          <p className="mb-4">You need to login to view your orders.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="loading-skeleton w-32 h-32 rounded-full mx-auto mb-4"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4">
+        <h1 className="text-3xl font-bold mb-8">My Orders</h1>
+
+        {orders.length === 0 ? (
+          <div className="text-center py-12">
+            <Package className="h-24 w-24 mx-auto mb-4 text-muted-foreground" />
+            <h2 className="text-2xl font-bold mb-4">No Orders Yet</h2>
+            <p className="text-muted-foreground mb-6">Start shopping to see your orders here!</p>
+            <Button onClick={() => window.location.href = '/'}>
+              Start Shopping
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {orders.map(order => (
+              <Card key={order.id}>
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="font-semibold text-lg">Order #{order.id.slice(0, 8)}...</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Placed on {new Date(order.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'}>
+                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                    </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                      <h4 className="font-medium">Items</h4>
+                      <p className="text-sm text-muted-foreground">{order.items.length} items</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Total</h4>
+                      <p className="text-sm font-bold text-orange-500">PKR {order.total_amount.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Payment</h4>
+                      <p className="text-sm text-muted-foreground">Cash on Delivery</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="font-medium">Delivery Address:</h4>
+                    <p className="text-sm text-muted-foreground">{order.delivery_address}</p>
+                    <p className="text-sm text-muted-foreground">Phone: {order.phone}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Customer Settings Component
+const CustomerSettings = () => {
+  const { user, logout } = useAppContext();
+  const [profileForm, setProfileForm] = useState({
+    name: '',
+    email: '',
+    address: '',
+    phone: ''
+  });
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setProfileForm({
+        name: user.name || '',
+        email: user.email || '',
+        address: user.address || '',
+        phone: user.phone || ''
+      });
+    }
+  }, [user]);
+
+  const handleUpdateProfile = async () => {
+    try {
+      await axios.put(`${API}/profile`, profileForm);
+      alert('Profile updated successfully!');
+      setIsEditing(false);
+      // Refresh user data would go here
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Error updating profile: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Please Login</h2>
+          <p className="mb-4">You need to login to access settings.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4 max-w-2xl">
+        <h1 className="text-3xl font-bold mb-8">Account Settings</h1>
+
+        <div className="space-y-6">
+          {/* Profile Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Profile Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Name</label>
+                <Input
+                  value={profileForm.name}
+                  onChange={(e) => setProfileForm({...profileForm, name: e.target.value})}
+                  disabled={!isEditing}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <Input
+                  value={profileForm.email}
+                  disabled={true} // Email cannot be changed
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Phone</label>
+                <Input
+                  value={profileForm.phone}
+                  onChange={(e) => setProfileForm({...profileForm, phone: e.target.value})}
+                  disabled={!isEditing}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Address</label>
+                <textarea
+                  className="w-full p-2 border rounded-md"
+                  rows="3"
+                  value={profileForm.address}
+                  onChange={(e) => setProfileForm({...profileForm, address: e.target.value})}
+                  disabled={!isEditing}
+                />
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                {!isEditing ? (
+                  <Button onClick={() => setIsEditing(true)}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Edit Profile
+                  </Button>
+                ) : (
+                  <>
+                    <Button onClick={handleUpdateProfile}>
+                      Save Changes
+                    </Button>
+                    <Button variant="outline" onClick={() => setIsEditing(false)}>
+                      Cancel
+                    </Button>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Account Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Account Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Button variant="outline" className="w-full justify-start" onClick={() => window.location.href = '/orders'}>
+                <Package className="mr-2 h-4 w-4" />
+                View My Orders
+              </Button>
+              
+              <Button variant="outline" className="w-full justify-start" onClick={() => window.location.href = '/cart'}>
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                View Shopping Cart
+              </Button>
+
+              <Separator />
+
+              <Button variant="outline" className="w-full justify-start text-red-600" onClick={logout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Footer Component
 const Footer = () => {
   return (
