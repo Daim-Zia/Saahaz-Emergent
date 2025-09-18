@@ -1743,10 +1743,10 @@ const AdminOrdersTab = ({ orders, setOrders, showToast }) => {
           ? { ...order, status: newStatus, updated_at: new Date().toISOString() }
           : order
       ));
-      alert(`Order status updated to ${newStatus}!`);
+      showToast(`Order status updated to ${newStatus}!`, 'success');
     } catch (error) {
       console.error('Error updating order status:', error);
-      alert('Error updating order status: ' + (error.response?.data?.detail || error.message));
+      showToast('Error updating order status: ' + (error.response?.data?.detail || error.message), 'error');
     }
   };
 
