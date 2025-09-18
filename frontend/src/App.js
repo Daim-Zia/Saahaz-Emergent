@@ -627,7 +627,123 @@ const AdminDashboard = () => {
 // Admin Products Tab
 const AdminProductsTab = ({ products, setProducts, categories }) => {
   const [isAddingProduct, setIsAddingProduct] = useState(false);
-  
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [productForm, setProductForm] = useState({
+    name: '',
+    description: '',
+    price: '',
+    category_id: '',
+    images: [''],
+    sizes: ['S', 'M', 'L'],
+    colors: ['Black', 'White'],
+    inventory: '',
+    featured: false
+  });
+
+  const resetForm = () => {
+    setProductForm({
+      name: '',
+      description: '',
+      price: '',
+      category_id: '',
+      images: [''],
+      sizes: ['S', 'M', 'L'],
+      colors: ['Black', 'White'],
+      inventory: '',
+      featured: false
+    });
+  };
+
+  const handleAddProduct = async () => {
+    try {
+      const productData = {
+        ...productForm,
+        price: parseFloat(productForm.price),
+        inventory: parseInt(productForm.inventory),
+        images: productForm.images.filter(img => img.trim() !== '')
+      };
+
+      const response = await axios.post(`${API}/products`, productData);
+      setProducts([...products, response.data]);
+      setIsAddingProduct(false);
+      resetForm();
+      alert('Product added successfully!');
+    } catch (error) {
+      console.error('Error adding product:', error);
+      alert('Error adding product: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  const handleEditProduct = async () => {
+    try {
+      const productData = {
+        ...productForm,
+        price: parseFloat(productForm.price),
+        inventory: parseInt(productForm.inventory),
+        images: productForm.images.filter(img => img.trim() !== '')
+      };
+
+      const response = await axios.put(`${API}/products/${editingProduct.id}`, productData);
+      setProducts(products.map(p => p.id === editingProduct.id ? response.data : p));
+      setEditingProduct(null);
+      resetForm();
+      alert('Product updated successfully!');
+    } catch (error) {
+      console.error('Error updating product:', error);
+      alert('Error updating product: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+    
+    try {
+      await axios.delete(`${API}/products/${productId}`);
+      setProducts(products.filter(p => p.id !== productId));
+      alert('Product deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      alert('Error deleting product: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  const handleToggleFeatured = async (product) => {
+    try {
+      const updatedProduct = { ...product, featured: !product.featured };
+      const response = await axios.put(`${API}/products/${product.id}`, {
+        name: updatedProduct.name,
+        description: updatedProduct.description,
+        price: updatedProduct.price,
+        category_id: updatedProduct.category_id,
+        images: updatedProduct.images,
+        sizes: updatedProduct.sizes,
+        colors: updatedProduct.colors,
+        inventory: updatedProduct.inventory,
+        featured: updatedProduct.featured
+      });
+      setProducts(products.map(p => p.id === product.id ? response.data : p));
+      alert(`Product ${updatedProduct.featured ? 'marked as featured' : 'unmarked as featured'}!`);
+    } catch (error) {
+      console.error('Error toggling featured:', error);
+      alert('Error updating product: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  const startEdit = (product) => {
+    setEditingProduct(product);
+    setProductForm({
+      name: product.name,
+      description: product.description,
+      price: product.price.toString(),
+      category_id: product.category_id,
+      images: product.images.length > 0 ? product.images : [''],
+      sizes: product.sizes,
+      colors: product.colors,
+      inventory: product.inventory.toString(),
+      featured: product.featured
+    });
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -640,11 +756,138 @@ const AdminProductsTab = ({ products, setProducts, categories }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map(product => (
-          <AdminProductCard key={product.id} product={product} categories={categories} />
+          <AdminProductCard 
+            key={product.id} 
+            product={product} 
+            categories={categories}
+            onEdit={() => startEdit(product)}
+            onDelete={() => handleDeleteProduct(product.id)}
+            onToggleFeatured={() => handleToggleFeatured(product)}
+          />
         ))}
       </div>
 
-      {/* Add Product Dialog would go here */}
+      {/* Add/Edit Product Dialog */}
+      <Dialog open={isAddingProduct || editingProduct !== null} onOpenChange={(open) => {
+        if (!open) {
+          setIsAddingProduct(false);
+          setEditingProduct(null);
+          resetForm();
+        }
+      }}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Product Name</label>
+              <Input
+                value={productForm.name}
+                onChange={(e) => setProductForm({...productForm, name: e.target.value})}
+                placeholder="Enter product name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Description</label>
+              <textarea
+                className="w-full p-2 border rounded-md"
+                rows="3"
+                value={productForm.description}
+                onChange={(e) => setProductForm({...productForm, description: e.target.value})}
+                placeholder="Enter product description"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Price (PKR)</label>
+                <Input
+                  type="number"
+                  value={productForm.price}
+                  onChange={(e) => setProductForm({...productForm, price: e.target.value})}
+                  placeholder="2500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Inventory</label>
+                <Input
+                  type="number"
+                  value={productForm.inventory}
+                  onChange={(e) => setProductForm({...productForm, inventory: e.target.value})}
+                  placeholder="50"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Category</label>
+              <select
+                className="w-full p-2 border rounded-md"
+                value={productForm.category_id}
+                onChange={(e) => setProductForm({...productForm, category_id: e.target.value})}
+              >
+                <option value="">Select Category</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Image URL</label>
+              <Input
+                value={productForm.images[0] || ''}
+                onChange={(e) => setProductForm({...productForm, images: [e.target.value]})}
+                placeholder="https://images.unsplash.com/..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Sizes (comma separated)</label>
+              <Input
+                value={productForm.sizes.join(', ')}
+                onChange={(e) => setProductForm({...productForm, sizes: e.target.value.split(',').map(s => s.trim())})}
+                placeholder="S, M, L, XL"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Colors (comma separated)</label>
+              <Input
+                value={productForm.colors.join(', ')}
+                onChange={(e) => setProductForm({...productForm, colors: e.target.value.split(',').map(c => c.trim())})}
+                placeholder="Black, White, Blue"
+              />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={productForm.featured}
+                onChange={(e) => setProductForm({...productForm, featured: e.target.checked})}
+              />
+              <label className="text-sm font-medium">Featured Product</label>
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button onClick={editingProduct ? handleEditProduct : handleAddProduct} className="flex-1">
+                {editingProduct ? 'Update Product' : 'Add Product'}
+              </Button>
+              <Button variant="outline" onClick={() => {
+                setIsAddingProduct(false);
+                setEditingProduct(null);
+                resetForm();
+              }} className="flex-1">
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
