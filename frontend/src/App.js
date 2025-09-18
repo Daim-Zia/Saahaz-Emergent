@@ -2244,12 +2244,33 @@ const CustomerOrders = () => {
   const { user } = useAppContext();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orderProducts, setOrderProducts] = useState({});
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const response = await axios.get(`${API}/orders`);
         setOrders(response.data);
+        
+        // Fetch product details for all orders
+        const allProductIds = [...new Set(
+          response.data.flatMap(order => order.items.map(item => item.product_id))
+        )];
+        
+        const productPromises = allProductIds.map(id => 
+          axios.get(`${API}/products/${id}`).catch(() => null)
+        );
+        const productResponses = await Promise.all(productPromises);
+        
+        const productsMap = {};
+        productResponses.forEach((response, index) => {
+          if (response && response.data) {
+            productsMap[allProductIds[index]] = response.data;
+          }
+        });
+        setOrderProducts(productsMap);
+        
       } catch (error) {
         console.error('Error fetching orders:', error);
       } finally {
@@ -2261,6 +2282,130 @@ const CustomerOrders = () => {
       fetchOrders();
     }
   }, [user]);
+
+  const printOrderSlip = (order) => {
+    const orderItems = order.items.map(item => ({
+      ...item,
+      product: orderProducts[item.product_id]
+    }));
+    
+    const subtotal = orderItems.reduce((sum, item) => 
+      sum + (item.product?.price || 0) * item.quantity, 0
+    );
+
+    const printContent = `
+      <html>
+        <head>
+          <title>Order Slip - ${order.id.slice(0, 8)}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #f97316; padding-bottom: 20px; }
+            .header h1 { color: #f97316; margin: 0; font-size: 28px; }
+            .header p { margin: 5px 0; color: #666; }
+            .order-info { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+            .info-section h3 { color: #333; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; }
+            .info-section p { margin: 5px 0; }
+            .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            .items-table th, .items-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+            .items-table th { background-color: #f97316; color: white; font-weight: bold; }
+            .items-table tr:nth-child(even) { background-color: #f9f9f9; }
+            .totals { margin-top: 20px; text-align: right; }
+            .totals table { margin-left: auto; border-collapse: collapse; }
+            .totals td { padding: 8px 15px; }
+            .totals .total-row { font-weight: bold; font-size: 18px; color: #f97316; border-top: 2px solid #f97316; }
+            .status { padding: 5px 10px; border-radius: 15px; font-weight: bold; text-transform: uppercase; }
+            .status.pending { background-color: #fef3c7; color: #92400e; }
+            .status.confirmed { background-color: #dbeafe; color: #1e40af; }
+            .status.shipped { background-color: #e0e7ff; color: #5b21b6; }
+            .status.delivered { background-color: #dcfce7; color: #166534; }
+            .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Saahaz.com</h1>
+            <p>Premium Fashion for Pakistan</p>
+            <h2>Order Receipt</h2>
+          </div>
+          
+          <div class="order-info">
+            <div class="info-section">
+              <h3>Order Details</h3>
+              <p><strong>Order ID:</strong> ${order.id}</p>
+              <p><strong>Order Date:</strong> ${new Date(order.created_at).toLocaleDateString()}</p>
+              <p><strong>Status:</strong> <span class="status ${order.status}">${order.status}</span></p>
+              <p><strong>Payment Method:</strong> Cash on Delivery</p>
+            </div>
+            
+            <div class="info-section">
+              <h3>Delivery Information</h3>
+              <p><strong>Customer:</strong> ${user.name}</p>
+              <p><strong>Phone:</strong> ${order.phone}</p>
+              <p><strong>Address:</strong><br>${order.delivery_address}</p>
+            </div>
+          </div>
+          
+          <h3>Order Items</h3>
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Size</th>
+                <th>Color</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${orderItems.map(item => `
+                <tr>
+                  <td>${item.product?.name || 'Product N/A'}</td>
+                  <td>${item.size || 'N/A'}</td>
+                  <td>${item.color || 'N/A'}</td>
+                  <td>${item.quantity}</td>
+                  <td>PKR ${item.product?.price?.toLocaleString() || '0'}</td>
+                  <td>PKR ${((item.product?.price || 0) * item.quantity).toLocaleString()}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          
+          <div class="totals">
+            <table>
+              <tr>
+                <td>Subtotal:</td>
+                <td>PKR ${subtotal.toLocaleString()}</td>
+              </tr>
+              <tr>
+                <td>Delivery:</td>
+                <td>FREE</td>
+              </tr>
+              <tr class="total-row">
+                <td>Total Amount:</td>
+                <td>PKR ${order.total_amount.toLocaleString()}</td>
+              </tr>
+            </table>
+          </div>
+          
+          <div class="footer">
+            <p>Thank you for shopping with Saahaz.com!</p>
+            <p>For support, contact us at info@saahaz.com or +92 XXX XXXXXXX</p>
+            <p>Generated on: ${new Date().toLocaleString()}</p>
+          </div>
+        </body>
+      </html>
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+  const viewOrderDetails = (order) => {
+    setSelectedOrder(order);
+  };
 
   if (!user) {
     return (
@@ -2297,46 +2442,188 @@ const CustomerOrders = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            {orders.map(order => (
-              <Card key={order.id}>
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="font-semibold text-lg">Order #{order.id.slice(0, 8)}...</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Placed on {new Date(order.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'}>
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                    </Badge>
-                  </div>
+            {orders.map(order => {
+              const orderItems = order.items.map(item => ({
+                ...item,
+                product: orderProducts[item.product_id]
+              }));
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div>
-                      <h4 className="font-medium">Items</h4>
-                      <p className="text-sm text-muted-foreground">{order.items.length} items</p>
+              return (
+                <Card key={order.id}>
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="font-semibold text-lg">Order #{order.id.slice(0, 8)}...</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Placed on {new Date(order.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'}>
+                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        </Badge>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-medium">Total</h4>
-                      <p className="text-sm font-bold text-orange-500">PKR {order.total_amount.toLocaleString()}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Payment</h4>
-                      <p className="text-sm text-muted-foreground">Cash on Delivery</p>
-                    </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Delivery Address:</h4>
-                    <p className="text-sm text-muted-foreground">{order.delivery_address}</p>
-                    <p className="text-sm text-muted-foreground">Phone: {order.phone}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    {/* Order Items Preview */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                      <div>
+                        <h4 className="font-medium mb-2">Items ({order.items.length})</h4>
+                        <div className="space-y-1">
+                          {orderItems.slice(0, 2).map((item, index) => (
+                            <div key={index} className="text-sm text-muted-foreground">
+                              {item.product?.name || 'Product N/A'} x{item.quantity}
+                            </div>
+                          ))}
+                          {orderItems.length > 2 && (
+                            <div className="text-sm text-muted-foreground">
+                              +{orderItems.length - 2} more items
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-medium mb-2">Total</h4>
+                        <p className="text-lg font-bold text-orange-500">PKR {order.total_amount.toLocaleString()}</p>
+                        <p className="text-sm text-muted-foreground">Cash on Delivery</p>
+                      </div>
+                      <div>
+                        <h4 className="font-medium mb-2">Delivery</h4>
+                        <p className="text-sm text-muted-foreground">{order.delivery_address}</p>
+                        <p className="text-sm text-muted-foreground">Phone: {order.phone}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 pt-4 border-t">
+                      <Button variant="outline" size="sm" onClick={() => viewOrderDetails(order)}>
+                        View Details
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => printOrderSlip(order)}>
+                        Print Order Slip
+                      </Button>
+                      {order.status === 'delivered' && (
+                        <Button variant="outline" size="sm">
+                          Reorder
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
+
+        {/* Order Details Dialog */}
+        <Dialog open={selectedOrder !== null} onOpenChange={(open) => {
+          if (!open) setSelectedOrder(null);
+        }}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center justify-between">
+                Order Details
+                {selectedOrder && (
+                  <Button variant="outline" onClick={() => printOrderSlip(selectedOrder)}>
+                    Print Order Slip
+                  </Button>
+                )}
+              </DialogTitle>
+            </DialogHeader>
+
+            {selectedOrder && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold mb-3">Order Information</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Order ID:</span>
+                        <span className="font-mono text-sm">{selectedOrder.id}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Status:</span>
+                        <Badge variant={selectedOrder.status === 'delivered' ? 'default' : 'secondary'}>
+                          {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Order Date:</span>
+                        <span>{new Date(selectedOrder.created_at).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Payment:</span>
+                        <span>Cash on Delivery</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold mb-3">Delivery Information</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Phone:</span>
+                        <span>{selectedOrder.phone}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Address:</span>
+                        <p className="text-sm bg-gray-50 p-3 rounded mt-1">{selectedOrder.delivery_address}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-3">Order Items</h4>
+                  <div className="space-y-3">
+                    {selectedOrder.items.map((item, index) => {
+                      const product = orderProducts[item.product_id];
+                      return (
+                        <div key={index} className="flex items-center space-x-4 p-4 border rounded">
+                          {product?.images?.[0] && (
+                            <img
+                              src={product.images[0]}
+                              alt={product.name}
+                              className="w-16 h-16 object-cover rounded"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <h5 className="font-medium">{product?.name || 'Product N/A'}</h5>
+                            <div className="text-sm text-muted-foreground">
+                              {item.size && <span>Size: {item.size} | </span>}
+                              {item.color && <span>Color: {item.color} | </span>}
+                              <span>Quantity: {item.quantity}</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-medium">PKR {product?.price?.toLocaleString() || '0'}</p>
+                            <p className="text-sm text-muted-foreground">
+                              Total: PKR {((product?.price || 0) * item.quantity).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="border-t pt-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span>Subtotal:</span>
+                    <span>PKR {selectedOrder.total_amount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span>Delivery:</span>
+                    <span className="text-green-600">FREE</span>
+                  </div>
+                  <div className="flex justify-between items-center text-lg font-bold">
+                    <span>Total:</span>
+                    <span className="text-orange-500">PKR {selectedOrder.total_amount.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
