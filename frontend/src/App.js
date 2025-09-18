@@ -901,7 +901,7 @@ const FeaturesSection = () => {
 
 // Admin Dashboard Component
 const AdminDashboard = () => {
-  const { user } = useAppContext();
+  const { user, logout } = useAppContext(); // Add logout function
   const [activeTab, setActiveTab] = useState('products');
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
