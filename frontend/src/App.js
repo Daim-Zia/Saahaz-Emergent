@@ -3530,18 +3530,35 @@ const Home = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        console.log('Fetching data from API...', API);
         
-        // Fetch categories
-        const categoriesResponse = await axios.get(`${API}/categories`);
+        // Fetch categories with timeout
+        console.log('Fetching categories...');
+        const categoriesResponse = await axios.get(`${API}/categories`, {
+          timeout: 10000 // 10 second timeout
+        });
+        console.log('Categories response:', categoriesResponse.data);
         setCategories(categoriesResponse.data);
         
-        // Fetch featured products
-        const productsResponse = await axios.get(`${API}/products?featured=true`);
+        // Fetch featured products with timeout
+        console.log('Fetching featured products...');
+        const productsResponse = await axios.get(`${API}/products?featured=true`, {
+          timeout: 10000 // 10 second timeout
+        });
+        console.log('Products response:', productsResponse.data);
         setProducts(productsResponse.data);
         
+        console.log('Successfully loaded API data');
       } catch (error) {
         console.error('Error fetching data:', error);
+        console.error('Error details:', {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+          code: error.code
+        });
         // Fall back to mock data if API fails
+        console.log('Falling back to mock data');
         setCategories(mockCategories);
         setProducts(mockProducts);
       } finally {
