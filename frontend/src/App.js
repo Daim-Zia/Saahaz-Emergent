@@ -95,7 +95,66 @@ const mockProducts = [
 // Header Component
 const Header = ({ onMenuClick, cartCount }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   const { user, logout } = useAppContext();
+
+  // Handle search functionality
+  const handleSearch = async (query) => {
+    if (!query || query.trim() === '') {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      // Search products by name or description
+      const response = await axios.get(`${API}/products`);
+      const allProducts = response.data;
+      
+      const filteredProducts = allProducts.filter(product =>
+        product.name.toLowerCase().includes(query.toLowerCase()) ||
+        product.description.toLowerCase().includes(query.toLowerCase())
+      );
+      
+      setSearchResults(filteredProducts);
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Handle search input changes with debouncing
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    
+    // Debounce search - wait 300ms after user stops typing
+    clearTimeout(window.searchTimeout);
+    window.searchTimeout = setTimeout(() => {
+      handleSearch(query);
+    }, 300);
+  };
+
+  // Handle search result click
+  const handleSearchResultClick = (productId) => {
+    window.location.href = `/product/${productId}`;
+    setIsSearchOpen(false);
+    setSearchQuery('');
+    setSearchResults([]);
+  };
+
+  // Handle search submit (Enter key)
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchResults.length > 0) {
+      // Navigate to products page with search filter
+      window.location.href = `/products?search=${encodeURIComponent(searchQuery)}`;
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
