@@ -749,17 +749,19 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
     Promise.all(promises)
       .then(newImages => {
         console.log('Processing uploaded images:', newImages.length);
-        console.log('New images data:', newImages);
+        console.log('New images data (first 50 chars each):', newImages.map(img => img.substring(0, 50)));
         
-        setImages(prev => {
-          console.log('Previous images state:', prev);
-          const currentImages = Array.isArray(prev) ? prev : [];
-          const combined = [...currentImages, ...newImages];
-          const result = combined.slice(0, maxImages);
-          console.log('Updated images array:', result);
-          console.log('Result types:', result.map(img => typeof img));
-          return result;
-        });
+        // Instead of using a state updater function, directly compute the new array
+        const currentImages = Array.isArray(imageArray) ? imageArray : [];
+        const combined = [...currentImages, ...newImages];
+        const result = combined.slice(0, maxImages);
+        
+        console.log('Final images array length:', result.length);
+        console.log('Calling setImages with result');
+        
+        // Call setImages directly with the computed array
+        setImages(result);
+        
         setUploading(false);
         alert(`Successfully uploaded ${newImages.length} image(s)!`);
       })
