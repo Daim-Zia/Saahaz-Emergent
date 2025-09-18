@@ -773,10 +773,11 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
   };
 
   const removeImage = (index) => {
-    setImages(prev => {
-      const currentImages = Array.isArray(prev) ? prev : (prev ? [prev] : []);
-      return currentImages.filter((_, i) => i !== index);
-    });
+    console.log('Removing image at index:', index);
+    const currentImages = Array.isArray(imageArray) ? imageArray : [];
+    const result = currentImages.filter((_, i) => i !== index);
+    console.log('After removal, images array length:', result.length);
+    setImages(result);
   };
 
   return (
