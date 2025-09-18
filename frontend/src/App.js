@@ -4125,7 +4125,7 @@ const CheckoutPage = () => {
                   <label className="block text-sm font-medium mb-1">Phone Number *</label>
                   <Input
                     type="tel"
-                    placeholder="+92 340 6098662"
+                    placeholder="Enter your phone number"
                     value={orderForm.phone}
                     onChange={(e) => setOrderForm({...orderForm, phone: e.target.value})}
                     required
