@@ -763,7 +763,7 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
   };
 
   const addImageUrl = () => {
-    const url = prompt('Enter image URL:');
+    const url = prompt('Enter image URL (try a direct image link like from Unsplash):');
     if (url && url.trim()) {
       // Test if URL is valid by creating an image element
       const img = new Image();
@@ -777,9 +777,10 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
             return currentImages;
           }
         });
+        alert('Image URL added successfully!');
       };
       img.onerror = () => {
-        alert('Invalid image URL. Please check the URL and try again.');
+        alert('Invalid image URL. Please check the URL and try again. Try using a direct image link (ending in .jpg, .png, etc.) from a site like Unsplash.');
       };
       img.src = url.trim();
     }
