@@ -536,10 +536,16 @@ app.include_router(api_router)
 
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "https://localhost:3000", 
+        "http://127.0.0.1:3000",
+        "https://clothing-shop-15.preview.emergentagent.com",
+        "*"  # Fallback for other origins
+    ],
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=['*'],
+    allow_headers=['*'],
 )
 
 # Configure logging
