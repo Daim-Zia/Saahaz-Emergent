@@ -3935,7 +3935,7 @@ const CheckoutPage = () => {
                   className="w-full bg-orange-500 hover:bg-orange-600"
                   onClick={handlePlaceOrder}
                 >
-                  Place Order - PKR {cartTotal.toLocaleString()}
+                  Place Order - PKR {getFinalTotal().toLocaleString()}
                 </Button>
 
                 <p className="text-xs text-muted-foreground text-center">
