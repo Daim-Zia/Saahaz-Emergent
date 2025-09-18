@@ -430,6 +430,89 @@ class SaahazAPITester:
         )
         return success
 
+def test_order_functionality_comprehensive():
+    """Comprehensive test of order placement and retrieval functionality"""
+    print("🛒 COMPREHENSIVE ORDER FUNCTIONALITY TESTING")
+    print("=" * 60)
+    
+    tester = SaahazAPITester()
+    
+    # Test API connectivity first
+    print("\n📡 Testing API Connectivity...")
+    if not tester.test_api_root():
+        print("❌ API is not accessible. Cannot proceed with order tests.")
+        return False
+    
+    # Step 1: Create a test user for order placement
+    print("\n👤 Step 1: Creating Test User...")
+    test_email = f"order_test_user_{datetime.now().strftime('%H%M%S')}@saahaz.com"
+    test_password = "OrderTest123!"
+    
+    if not tester.test_register_user(test_email, test_password, "Order Test User"):
+        print("❌ User registration failed. Cannot proceed with order tests.")
+        return False
+    
+    # Step 2: Test order creation with valid data
+    print("\n📦 Step 2: Testing Order Creation...")
+    order_creation_success = tester.test_create_order()
+    if not order_creation_success:
+        print("❌ Order creation failed")
+        return False
+    
+    # Step 3: Test order retrieval for user
+    print("\n📋 Step 3: Testing User Order Retrieval...")
+    user_orders_success = tester.test_get_orders()
+    if not user_orders_success:
+        print("❌ User order retrieval failed")
+        return False
+    
+    # Step 4: Test admin authentication and order retrieval
+    print("\n👑 Step 4: Testing Admin Authentication...")
+    admin_login_success = tester.test_login_user("test@saahaz.com", "password", is_admin=True)
+    if not admin_login_success:
+        print("❌ Admin login failed. Cannot test admin order retrieval.")
+        return False
+    
+    # Step 5: Test admin order retrieval (all orders)
+    print("\n🔍 Step 5: Testing Admin Order Retrieval...")
+    admin_orders_success = tester.test_admin_get_all_orders()
+    if not admin_orders_success:
+        print("❌ Admin order retrieval failed")
+        return False
+    
+    # Step 6: Create additional test order to verify multiple orders
+    print("\n📦 Step 6: Creating Additional Test Order...")
+    additional_order_success = tester.test_create_order()
+    if additional_order_success:
+        print("✅ Additional order created successfully")
+    
+    # Step 7: Final verification - admin should see all orders
+    print("\n🔍 Step 7: Final Admin Order Count Verification...")
+    final_admin_check = tester.test_admin_get_all_orders()
+    
+    print("\n" + "=" * 60)
+    print("📊 ORDER FUNCTIONALITY TEST RESULTS:")
+    print(f"✅ API Connectivity: Working")
+    print(f"✅ User Registration: Working") 
+    print(f"{'✅' if order_creation_success else '❌'} Order Creation: {'Working' if order_creation_success else 'Failed'}")
+    print(f"{'✅' if user_orders_success else '❌'} User Order Retrieval: {'Working' if user_orders_success else 'Failed'}")
+    print(f"{'✅' if admin_login_success else '❌'} Admin Authentication: {'Working' if admin_login_success else 'Failed'}")
+    print(f"{'✅' if admin_orders_success else '❌'} Admin Order Retrieval: {'Working' if admin_orders_success else 'Failed'}")
+    
+    overall_success = all([
+        order_creation_success,
+        user_orders_success, 
+        admin_login_success,
+        admin_orders_success
+    ])
+    
+    if overall_success:
+        print("\n🎉 ALL ORDER FUNCTIONALITY TESTS PASSED!")
+        return True
+    else:
+        print("\n❌ SOME ORDER FUNCTIONALITY TESTS FAILED!")
+        return False
+
 def test_specific_admin_login():
     """Test the specific admin login functionality for test@saahaz.com"""
     print("🚀 Testing Admin Login for test@saahaz.com")
