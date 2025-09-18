@@ -1729,7 +1729,8 @@ const ShoppingCart = () => {
                   <span>Total</span>
                   <span>PKR {cartTotal.toLocaleString()}</span>
                 </div>
-                <Button size="lg" className="w-full bg-orange-500 hover:bg-orange-600">
+                <Button size="lg" className="w-full bg-orange-500 hover:bg-orange-600"
+                        onClick={() => window.location.href = '/checkout'}>
                   Proceed to Checkout
                 </Button>
                 <p className="text-sm text-muted-foreground text-center">
