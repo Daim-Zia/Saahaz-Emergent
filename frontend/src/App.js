@@ -770,9 +770,9 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
         
         {/* Add Image Placeholder */}
         {imageArray.length < maxImages && (
-          <div className="border-2 border-dashed border-gray-600 rounded p-4 flex flex-col items-center justify-center h-24 hover:border-yellow-500 transition-colors cursor-pointer">
-            <Plus className="h-6 w-6 text-gray-400 mb-1" />
-            <span className="text-xs text-gray-400">Add Image</span>
+          <div className="border-2 border-dashed border-gray-300 rounded p-4 flex flex-col items-center justify-center h-24 hover:border-orange-500 transition-colors cursor-pointer">
+            <Plus className="h-6 w-6 text-gray-500 mb-1" />
+            <span className="text-xs text-gray-600">Add Image</span>
           </div>
         )}
       </div>
