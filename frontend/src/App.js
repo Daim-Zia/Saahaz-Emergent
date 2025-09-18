@@ -2295,9 +2295,9 @@ const ProductDetails = () => {
           {/* Product Images */}
           <div className="space-y-4">
             <div className="aspect-square overflow-hidden rounded-lg relative">
-              {product.images && Array.isArray(product.images) && product.images.length > 0 && product.images[0] ? (
+              {product.images && Array.isArray(product.images) && product.images.length > 0 && product.images[selectedImageIndex] ? (
                 <img
-                  src={product.images[0]}
+                  src={product.images[selectedImageIndex]}
                   alt={product.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -2309,15 +2309,42 @@ const ProductDetails = () => {
                   <span className="text-gray-500">No Image Available</span>
                 </div>
               )}
+              
+              {/* Image navigation indicators for multiple images */}
+              {product.images && product.images.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                  {product.images.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleImageClick(index)}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        selectedImageIndex === index ? 'bg-orange-500' : 'bg-white/70'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
+            
+            {/* Image Thumbnails - Now all images including the first one */}
             {product.images && Array.isArray(product.images) && product.images.length > 1 && (
               <div className="grid grid-cols-4 gap-2">
-                {product.images.slice(1).map((image, index) => (
-                  <div key={index} className="aspect-square overflow-hidden rounded-lg">
+                {product.images.map((image, index) => (
+                  <div 
+                    key={index} 
+                    className={`aspect-square overflow-hidden rounded-lg cursor-pointer transition-all border-2 ${
+                      selectedImageIndex === index 
+                        ? 'border-orange-500 ring-2 ring-orange-500/30' 
+                        : 'border-transparent hover:border-gray-300'
+                    }`}
+                    onClick={() => handleImageClick(index)}
+                  >
                     <img
                       src={image}
-                      alt={`${product.name} ${index + 2}`}
-                      className="w-full h-full object-cover cursor-pointer hover:opacity-80"
+                      alt={`${product.name} view ${index + 1}`}
+                      className={`w-full h-full object-cover transition-all hover:scale-105 ${
+                        selectedImageIndex === index ? 'opacity-100' : 'opacity-70 hover:opacity-100'
+                      }`}
                       onError={(e) => {
                         e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjI1IiBjeT0iMjUiIHI9IjEwIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMSIvPgo8L3N2Zz4K';
                       }}
