@@ -2197,10 +2197,12 @@ const AdminProductCard = ({ product, categories, onEdit, onDelete, onToggleFeatu
 const ProductDetails = () => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [isInWishlist, setIsInWishlist] = useState(false);
   const { addToCart, user } = useAppContext();
 
   useEffect(() => {
