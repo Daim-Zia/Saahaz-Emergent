@@ -897,7 +897,19 @@ const AdminProductsTab = ({ products, setProducts, categories }) => {
       alert('Product updated successfully!');
     } catch (error) {
       console.error('Error updating product:', error);
-      alert('Error updating product: ' + (error.response?.data?.detail || error.message));
+      let errorMessage = 'Unknown error occurred';
+      if (error.response?.data?.detail) {
+        if (Array.isArray(error.response.data.detail)) {
+          errorMessage = error.response.data.detail.map(err => 
+            typeof err === 'object' ? `${err.loc?.join(' ')} - ${err.msg}` : err
+          ).join(', ');
+        } else {
+          errorMessage = error.response.data.detail;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      alert('Error updating product: ' + errorMessage);
     }
   };
 
