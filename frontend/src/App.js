@@ -812,7 +812,7 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
         </Button>
       </div>
       
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-gray-600">
         Upload images or add URLs. Maximum {maxImages} images. Supported: JPG, PNG, WebP
       </p>
     </div>
