@@ -747,11 +747,15 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
     Promise.all(promises)
       .then(newImages => {
         console.log('Processing uploaded images:', newImages.length);
+        console.log('New images data:', newImages);
+        
         setImages(prev => {
-          const currentImages = Array.isArray(prev) ? prev : (prev ? [prev] : []);
+          console.log('Previous images state:', prev);
+          const currentImages = Array.isArray(prev) ? prev : [];
           const combined = [...currentImages, ...newImages];
-          const result = combined.slice(0, maxImages); // Limit to maxImages
-          console.log('Updated images array:', result.length);
+          const result = combined.slice(0, maxImages);
+          console.log('Updated images array:', result);
+          console.log('Result types:', result.map(img => typeof img));
           return result;
         });
         setUploading(false);
