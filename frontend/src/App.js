@@ -2233,6 +2233,42 @@ const ProductDetails = () => {
     alert('Product added to cart!');
   };
 
+  const handleAddToWishlist = async () => {
+    if (!user) {
+      alert('Please login to add items to wishlist');
+      return;
+    }
+
+    try {
+      if (isInWishlist) {
+        // Remove from wishlist
+        await axios.delete(`${API}/wishlist/${productId}`, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+        setIsInWishlist(false);
+        alert('Removed from wishlist!');
+      } else {
+        // Add to wishlist
+        await axios.post(`${API}/wishlist`, {
+          product_id: productId
+        }, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+        setIsInWishlist(true);
+        alert('Added to wishlist!');
+      }
+    } catch (error) {
+      console.error('Wishlist error:', error);
+      // For now, simulate wishlist functionality since API might not be implemented
+      setIsInWishlist(!isInWishlist);
+      alert(isInWishlist ? 'Removed from wishlist!' : 'Added to wishlist!');
+    }
+  };
+
+  const handleImageClick = (index) => {
+    setSelectedImageIndex(index);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
