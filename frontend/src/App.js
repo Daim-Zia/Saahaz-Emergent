@@ -638,7 +638,7 @@ const AdminDashboard = () => {
   );
 };
 
-// Image Upload Component
+// Image Upload Component - Fixed
 const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
   const [uploading, setUploading] = useState(false);
   
@@ -647,20 +647,35 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
 
   const handleImageUpload = (event) => {
     const files = Array.from(event.target.files);
+    setUploading(true);
     
-    files.forEach(file => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const newImage = e.target.result;
-          setImages(prev => {
-            const currentImages = Array.isArray(prev) ? prev : (prev ? [prev] : []);
-            return [...currentImages.slice(0, maxImages - 1), newImage];
-          });
-        };
-        reader.readAsDataURL(file);
-      }
+    const promises = files.map(file => {
+      return new Promise((resolve, reject) => {
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        } else {
+          reject(new Error('Invalid file type'));
+        }
+      });
     });
+
+    Promise.all(promises)
+      .then(newImages => {
+        setImages(prev => {
+          const currentImages = Array.isArray(prev) ? prev : (prev ? [prev] : []);
+          const combined = [...currentImages, ...newImages];
+          return combined.slice(0, maxImages); // Limit to maxImages
+        });
+        setUploading(false);
+      })
+      .catch(error => {
+        console.error('Error uploading images:', error);
+        alert('Error uploading images. Please try again.');
+        setUploading(false);
+      });
   };
 
   const removeImage = (index) => {
@@ -673,18 +688,31 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
   const addImageUrl = () => {
     const url = prompt('Enter image URL:');
     if (url && url.trim()) {
-      setImages(prev => {
-        const currentImages = Array.isArray(prev) ? prev : (prev ? [prev] : []);
-        return [...currentImages, url.trim()];
-      });
+      // Test if URL is valid by creating an image element
+      const img = new Image();
+      img.onload = () => {
+        setImages(prev => {
+          const currentImages = Array.isArray(prev) ? prev : (prev ? [prev] : []);
+          if (currentImages.length < maxImages) {
+            return [...currentImages, url.trim()];
+          } else {
+            alert(`Maximum ${maxImages} images allowed`);
+            return currentImages;
+          }
+        });
+      };
+      img.onerror = () => {
+        alert('Invalid image URL. Please check the URL and try again.');
+      };
+      img.src = url.trim();
     }
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center space-x-2">
-        <label className="block text-sm font-medium">Images</label>
-        <span className="text-xs text-muted-foreground">({imageArray.length}/{maxImages})</span>
+        <label className="block text-sm font-medium text-white">Images</label>
+        <span className="text-xs text-gray-400">({imageArray.length}/{maxImages})</span>
       </div>
       
       {/* Image Preview Grid */}
@@ -694,15 +722,15 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
             <img
               src={image}
               alt={`Image ${index + 1}`}
-              className="w-full h-24 object-cover rounded border"
+              className="w-full h-24 object-cover rounded border border-gray-600"
               onError={(e) => {
-                e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMiA5VjEzTTE1IDEwLjVWMTEuNUw5IDEyLjVWMTAuNU0xMiAxNkg5TDE1IDE0SDE4VjEwSDZWMTRIMTJaIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=';
+                e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjMzc0MTUxIi8+CjxwYXRoIGQ9Ik0xMiA5VjEzTTE1IDEwLjVWMTEuNUw5IDEyLjVWMTAuNU0xMiAxNkg5TDE1IDE0SDE4VjEwSDZWMTRIMTJaIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=';
               }}
             />
             <button
               type="button"
               onClick={() => removeImage(index)}
-              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
             >
               ×
             </button>
@@ -711,9 +739,9 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
         
         {/* Add Image Placeholder */}
         {imageArray.length < maxImages && (
-          <div className="border-2 border-dashed border-gray-300 rounded p-4 flex flex-col items-center justify-center h-24 hover:border-orange-500 transition-colors">
+          <div className="border-2 border-dashed border-gray-600 rounded p-4 flex flex-col items-center justify-center h-24 hover:border-yellow-500 transition-colors cursor-pointer">
             <Plus className="h-6 w-6 text-gray-400 mb-1" />
-            <span className="text-xs text-gray-500">Add Image</span>
+            <span className="text-xs text-gray-400">Add Image</span>
           </div>
         )}
       </div>
@@ -727,16 +755,17 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
             multiple
             onChange={handleImageUpload}
             className="hidden"
-            disabled={imageArray.length >= maxImages}
+            disabled={imageArray.length >= maxImages || uploading}
           />
           <Button 
             type="button" 
             variant="outline" 
             size="sm"
-            disabled={imageArray.length >= maxImages}
+            disabled={imageArray.length >= maxImages || uploading}
+            className="border-gray-600 text-white hover:bg-gray-700"
             asChild
           >
-            <span>Upload Images</span>
+            <span>{uploading ? 'Uploading...' : 'Upload Images'}</span>
           </Button>
         </label>
         
@@ -746,13 +775,14 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
           size="sm"
           onClick={addImageUrl}
           disabled={imageArray.length >= maxImages}
+          className="border-gray-600 text-white hover:bg-gray-700"
         >
           Add URL
         </Button>
       </div>
       
-      <p className="text-xs text-muted-foreground">
-        You can upload images or add image URLs. Maximum {maxImages} images allowed.
+      <p className="text-xs text-gray-400">
+        Upload images or add URLs. Maximum {maxImages} images. Supported: JPG, PNG, WebP
       </p>
     </div>
   );
