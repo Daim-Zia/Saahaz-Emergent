@@ -1013,9 +1013,26 @@ const AdminDashboard = () => {
       />
       
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage your e-commerce platform</p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Manage your e-commerce platform</p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <p className="text-sm text-muted-foreground">Welcome, {user?.name}</p>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                const { logout } = useAppContext();
+                logout();
+                window.location.href = '/';
+              }}
+              className="text-red-600 hover:text-red-700"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
