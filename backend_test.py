@@ -347,6 +347,45 @@ class SaahazAPITester:
         success, response = self.run_test("Get User Orders", "GET", "orders", 200)
         if success and isinstance(response, list):
             print(f"   Found {len(response)} orders")
+            for order in response[:3]:  # Show first 3 orders
+                print(f"   - Order ID: {order.get('id', 'Unknown')}")
+                print(f"     Status: {order.get('status', 'Unknown')}")
+                print(f"     Subtotal: PKR {order.get('subtotal', 0)}")
+                print(f"     Delivery Charge: PKR {order.get('delivery_charge', 0)}")
+                print(f"     Total: PKR {order.get('total_amount', 0)}")
+                print(f"     Delivery Option: {order.get('delivery_option', 'Unknown')}")
+        return success
+
+    def test_admin_get_all_orders(self):
+        """Test admin getting all orders"""
+        if not self.admin_token:
+            print("❌ No admin token available for admin orders test")
+            return False
+            
+        success, response = self.run_test("Admin Get All Orders", "GET", "orders", 200, use_admin=True)
+        if success and isinstance(response, list):
+            print(f"   Admin found {len(response)} total orders")
+            
+            # Validate order structure
+            for i, order in enumerate(response[:3]):  # Check first 3 orders
+                print(f"   Order {i+1}:")
+                print(f"     ID: {order.get('id', 'Missing')}")
+                print(f"     User ID: {order.get('user_id', 'Missing')}")
+                print(f"     Status: {order.get('status', 'Missing')}")
+                print(f"     Subtotal: PKR {order.get('subtotal', 'Missing')}")
+                print(f"     Delivery Charge: PKR {order.get('delivery_charge', 'Missing')}")
+                print(f"     Total Amount: PKR {order.get('total_amount', 'Missing')}")
+                print(f"     Delivery Option: {order.get('delivery_option', 'Missing')}")
+                print(f"     Items Count: {len(order.get('items', []))}")
+                
+                # Check for validation errors
+                required_fields = ['id', 'user_id', 'items', 'subtotal', 'delivery_charge', 'total_amount', 'delivery_option']
+                missing_fields = [field for field in required_fields if field not in order or order[field] is None]
+                if missing_fields:
+                    print(f"     ⚠️ Missing/null fields: {missing_fields}")
+                else:
+                    print(f"     ✅ All required fields present")
+                    
         return success
 
     def test_admin_create_category(self):
