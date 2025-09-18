@@ -1144,7 +1144,7 @@ const AdminProductsTab = ({ products, setProducts, categories, showToast }) => {
       setProducts([...products, response.data]);
       setIsAddingProduct(false);
       resetForm();
-      alert('Product added successfully!');
+      showToast('Product added successfully!', 'success');
     } catch (error) {
       console.error('Error adding product:', error);
       console.error('Error response:', error.response?.data);
