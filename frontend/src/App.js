@@ -2103,9 +2103,14 @@ const AppProvider = ({ children }) => {
   // Initialize cart from localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem('saahaz_cart');
+    console.log('Loading cart from localStorage:', savedCart); // Debug log
     if (savedCart) {
       try {
-        setCart(JSON.parse(savedCart));
+        const parsedCart = JSON.parse(savedCart);
+        if (Array.isArray(parsedCart) && parsedCart.length > 0) {
+          setCart(parsedCart);
+          console.log('Cart loaded successfully:', parsedCart); // Debug log
+        }
       } catch (error) {
         console.error('Error loading cart from localStorage:', error);
         localStorage.removeItem('saahaz_cart');
@@ -2115,7 +2120,16 @@ const AppProvider = ({ children }) => {
 
   // Save cart to localStorage whenever cart changes
   useEffect(() => {
-    localStorage.setItem('saahaz_cart', JSON.stringify(cart));
+    if (cart.length > 0) {
+      localStorage.setItem('saahaz_cart', JSON.stringify(cart));
+      console.log('Cart saved to localStorage:', cart); // Debug log
+    } else {
+      // Don't clear localStorage when cart is empty on initialization
+      const existingCart = localStorage.getItem('saahaz_cart');
+      if (existingCart && JSON.parse(existingCart).length > 0) {
+        console.log('Keeping existing cart in localStorage'); // Debug log
+      }
+    }
   }, [cart]);
 
   // Auth functions
