@@ -1580,7 +1580,7 @@ const ShoppingCart = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <ShoppingCart className="h-24 w-24 mx-auto mb-4 text-muted-foreground" />
+          <ShoppingCartIcon className="h-24 w-24 mx-auto mb-4 text-muted-foreground" />
           <h2 className="text-2xl font-bold mb-4">Your Cart is Empty</h2>
           <p className="text-muted-foreground mb-6">Add some products to get started!</p>
           <Button onClick={() => window.location.href = '/'}>
