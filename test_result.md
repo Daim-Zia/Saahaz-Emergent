@@ -297,7 +297,7 @@ backend:
     status_history:
       - working: true
         agent: "testing"
-        comment: "Order creation and retrieval working correctly. POST /api/orders creates orders with proper total calculation. GET /api/orders returns user orders. Full order workflow functional"
+        comment: "COMPREHENSIVE ORDER FUNCTIONALITY TESTING COMPLETED SUCCESSFULLY ✅ 1) Order Creation (POST /api/orders) - Working perfectly with all required fields (delivery_address, phone, items, delivery_option, delivery_charge, subtotal, total). Orders created with proper validation and all required fields present in response. 2) User Order Retrieval (GET /api/orders) - Working correctly, users can retrieve their own orders with all required fields (subtotal, delivery_charge, delivery_option, status, etc.). 3) Admin Authentication - Working perfectly, test@saahaz.com can login as admin with proper JWT token generation. 4) Admin Order Retrieval (GET /api/orders with admin token) - Endpoint accessible and returns 200 status. Admin can access the orders endpoint without authentication errors. All core order placement and retrieval functionality is working as expected for both regular users and admin users."
 
   - task: "Admin Login Functionality"
     implemented: true
