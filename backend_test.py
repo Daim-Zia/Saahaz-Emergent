@@ -478,4 +478,20 @@ def main():
         return 1
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # Run the specific admin login test as requested
+    print("🎯 RUNNING SPECIFIC ADMIN LOGIN TEST")
+    print("Testing admin login for test@saahaz.com with password 'password'")
+    print("=" * 70)
+    
+    admin_test_success = test_specific_admin_login()
+    
+    print("\n" + "=" * 70)
+    if admin_test_success:
+        print("✅ ADMIN LOGIN TEST COMPLETED SUCCESSFULLY")
+    else:
+        print("❌ ADMIN LOGIN TEST FAILED")
+    
+    print("\n🔄 Running full API test suite...")
+    full_test_result = main()
+    
+    sys.exit(0 if admin_test_success else 1)
