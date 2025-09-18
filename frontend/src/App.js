@@ -245,14 +245,75 @@ const Header = ({ onMenuClick, cartCount }) => {
 
         {/* Search Bar */}
         {isSearchOpen && (
-          <div className="py-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search products..."
-                className="pl-10"
-              />
-            </div>
+          <div className="py-4 relative">
+            <form onSubmit={handleSearchSubmit}>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search products..."
+                  className="pl-10 pr-4"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  autoFocus
+                />
+                {isSearching && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <div className="animate-spin h-4 w-4 border-2 border-orange-500 border-t-transparent rounded-full"></div>
+                  </div>
+                )}
+              </div>
+            </form>
+            
+            {/* Search Results Dropdown */}
+            {searchQuery && searchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-64 overflow-y-auto z-50">
+                {searchResults.slice(0, 5).map((product) => (
+                  <div
+                    key={product.id}
+                    className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                    onClick={() => handleSearchResultClick(product.id)}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <img
+                        src={product.images && product.images[0] ? product.images[0] : '/placeholder-image.jpg'}
+                        alt={product.name}
+                        className="w-10 h-10 object-cover rounded"
+                        onError={(e) => {
+                          e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjgiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9zdmc+';
+                        }}
+                      />
+                      <div className="flex-1">
+                        <h4 className="text-sm font-medium text-gray-900">{product.name}</h4>
+                        <p className="text-xs text-gray-500 truncate">{product.description}</p>
+                        <p className="text-sm font-semibold text-orange-500">PKR {product.price.toLocaleString()}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {searchResults.length > 5 && (
+                  <div 
+                    className="p-3 text-center text-sm text-orange-500 hover:bg-orange-50 cursor-pointer font-medium"
+                    onClick={() => {
+                      window.location.href = `/products?search=${encodeURIComponent(searchQuery)}`;
+                      setIsSearchOpen(false);
+                    }}
+                  >
+                    View all {searchResults.length} results
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* No Results Message */}
+            {searchQuery && searchResults.length === 0 && !isSearching && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg mt-1 p-4 z-50">
+                <div className="text-center text-gray-500">
+                  <Search className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                  <p className="text-sm">No products found for "{searchQuery}"</p>
+                  <p className="text-xs text-gray-400 mt-1">Try different keywords</p>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
