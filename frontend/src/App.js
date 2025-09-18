@@ -92,43 +92,54 @@ const mockProducts = [
   }
 ];
 
-// Header Component
+// Header Component - Luxury Theme
 const Header = ({ onMenuClick, cartCount }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { user, logout } = useAppContext();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <header className="sticky top-0 z-50 w-full border-b border-gray-800 luxury-nav">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Button variant="ghost" size="sm" className="md:hidden mr-2" onClick={onMenuClick}>
+            <Button variant="ghost" size="sm" className="md:hidden mr-2 text-white hover:bg-gray-800" onClick={onMenuClick}>
               <Menu className="h-5 w-5" />
             </Button>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
-              Saahaz.com
+            <h1 className="text-3xl font-bold font-serif">
+              <span className="gradient-text">Saahaz</span>
+              <span className="text-white">.com</span>
             </h1>
           </div>
 
           {/* Navigation - Desktop */}
-          <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
-            <a href="/" className="transition-colors hover:text-orange-500">Home</a>
-            <a href="/products" className="transition-colors hover:text-orange-500">Products</a>
-            <a href="/categories" className="transition-colors hover:text-orange-500">Categories</a>
-            <a href="/about" className="transition-colors hover:text-orange-500">About</a>
+          <nav className="hidden md:flex items-center space-x-10 text-sm font-medium">
+            <a href="/" className="text-white hover:text-yellow-400 transition-colors uppercase tracking-wide">Home</a>
+            <a href="/products" className="text-white hover:text-yellow-400 transition-colors uppercase tracking-wide">Products</a>
+            <a href="/categories" className="text-white hover:text-yellow-400 transition-colors uppercase tracking-wide">Categories</a>
+            <a href="/about" className="text-white hover:text-yellow-400 transition-colors uppercase tracking-wide">About</a>
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" onClick={() => setIsSearchOpen(!isSearchOpen)}>
+          <div className="flex items-center space-x-6">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-white hover:bg-gray-800 hover:text-yellow-400"
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+            >
               <Search className="h-5 w-5" />
             </Button>
             
-            <Button variant="ghost" size="sm" className="relative" onClick={() => window.location.href = '/cart'}>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="relative text-white hover:bg-gray-800 hover:text-yellow-400" 
+              onClick={() => window.location.href = '/cart'}
+            >
               <ShoppingCartIcon className="h-5 w-5" />
               {cartCount > 0 && (
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs">
+                <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs luxury-badge">
                   {cartCount}
                 </Badge>
               )}
@@ -137,34 +148,34 @@ const Header = ({ onMenuClick, cartCount }) => {
             {user ? (
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="text-white hover:bg-gray-800 hover:text-yellow-400">
                     <User className="h-5 w-5" />
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="bg-gray-900 border-gray-700 text-white">
                   <DialogHeader>
-                    <DialogTitle>Account</DialogTitle>
+                    <DialogTitle className="text-white font-serif">Account</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div className="flex items-center space-x-4">
-                      <Avatar>
-                        <AvatarFallback>{user.name?.[0]?.toUpperCase()}</AvatarFallback>
+                      <Avatar className="border-2 border-yellow-400">
+                        <AvatarFallback className="bg-yellow-400 text-black font-bold">{user.name?.[0]?.toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium">{user.name}</p>
-                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                        <p className="font-medium text-white">{user.name}</p>
+                        <p className="text-sm text-gray-400">{user.email}</p>
                       </div>
                     </div>
-                    <Separator />
-                    <Button variant="outline" className="w-full justify-start" onClick={() => window.location.href = '/orders'}>
+                    <Separator className="bg-gray-700" />
+                    <Button variant="outline" className="w-full justify-start border-gray-600 text-white hover:bg-gray-800 hover:border-yellow-400" onClick={() => window.location.href = '/orders'}>
                       <Package className="mr-2 h-4 w-4" />
                       My Orders
                     </Button>
-                    <Button variant="outline" className="w-full justify-start" onClick={() => window.location.href = '/settings'}>
+                    <Button variant="outline" className="w-full justify-start border-gray-600 text-white hover:bg-gray-800 hover:border-yellow-400" onClick={() => window.location.href = '/settings'}>
                       <Settings className="mr-2 h-4 w-4" />
                       Settings
                     </Button>
-                    <Button variant="outline" className="w-full justify-start" onClick={logout}>
+                    <Button variant="outline" className="w-full justify-start border-gray-600 text-white hover:bg-red-800 hover:border-red-400" onClick={logout}>
                       <LogOut className="mr-2 h-4 w-4" />
                       Logout
                     </Button>
@@ -174,9 +185,9 @@ const Header = ({ onMenuClick, cartCount }) => {
             ) : (
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button size="sm">Login</Button>
+                  <Button size="sm" className="luxury-button font-medium px-6">Login</Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="bg-gray-900 border-gray-700 text-white">
                   <AuthDialog />
                 </DialogContent>
               </Dialog>
@@ -188,10 +199,10 @@ const Header = ({ onMenuClick, cartCount }) => {
         {isSearchOpen && (
           <div className="py-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search products..."
-                className="pl-10"
+                placeholder="Search luxury fashion..."
+                className="pl-10 luxury-input"
               />
             </div>
           </div>
