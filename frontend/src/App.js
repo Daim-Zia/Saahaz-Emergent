@@ -894,11 +894,75 @@ const AdminProductsTab = ({ products, setProducts, categories }) => {
 
 // Admin Categories Tab
 const AdminCategoriesTab = ({ categories, setCategories }) => {
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [categoryForm, setCategoryForm] = useState({
+    name: '',
+    description: '',
+    image: ''
+  });
+
+  const resetForm = () => {
+    setCategoryForm({
+      name: '',
+      description: '',
+      image: ''
+    });
+  };
+
+  const handleAddCategory = async () => {
+    try {
+      const response = await axios.post(`${API}/categories`, categoryForm);
+      setCategories([...categories, response.data]);
+      setIsAddingCategory(false);
+      resetForm();
+      alert('Category added successfully!');
+    } catch (error) {
+      console.error('Error adding category:', error);
+      alert('Error adding category: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  const handleEditCategory = async () => {
+    try {
+      const response = await axios.put(`${API}/categories/${editingCategory.id}`, categoryForm);
+      setCategories(categories.map(c => c.id === editingCategory.id ? response.data : c));
+      setEditingCategory(null);
+      resetForm();
+      alert('Category updated successfully!');
+    } catch (error) {
+      console.error('Error updating category:', error);
+      alert('Error updating category: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  const handleDeleteCategory = async (categoryId) => {
+    if (!confirm('Are you sure you want to delete this category?')) return;
+    
+    try {
+      await axios.delete(`${API}/categories/${categoryId}`);
+      setCategories(categories.filter(c => c.id !== categoryId));
+      alert('Category deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      alert('Error deleting category: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  const startEdit = (category) => {
+    setEditingCategory(category);
+    setCategoryForm({
+      name: category.name,
+      description: category.description || '',
+      image: category.image || ''
+    });
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Categories Management</h2>
-        <Button>
+        <Button onClick={() => setIsAddingCategory(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Add Category
         </Button>
@@ -912,13 +976,74 @@ const AdminCategoriesTab = ({ categories, setCategories }) => {
               <h3 className="font-semibold text-lg mb-2">{category.name}</h3>
               <p className="text-sm text-muted-foreground mb-4">{category.description}</p>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">Edit</Button>
-                <Button variant="outline" size="sm" className="text-red-600">Delete</Button>
+                <Button variant="outline" size="sm" onClick={() => startEdit(category)}>
+                  Edit
+                </Button>
+                <Button variant="outline" size="sm" className="text-red-600" onClick={() => handleDeleteCategory(category.id)}>
+                  Delete
+                </Button>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      {/* Add/Edit Category Dialog */}
+      <Dialog open={isAddingCategory || editingCategory !== null} onOpenChange={(open) => {
+        if (!open) {
+          setIsAddingCategory(false);
+          setEditingCategory(null);
+          resetForm();
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Category Name</label>
+              <Input
+                value={categoryForm.name}
+                onChange={(e) => setCategoryForm({...categoryForm, name: e.target.value})}
+                placeholder="Enter category name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Description</label>
+              <Input
+                value={categoryForm.description}
+                onChange={(e) => setCategoryForm({...categoryForm, description: e.target.value})}
+                placeholder="Enter category description"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Image URL</label>
+              <Input
+                value={categoryForm.image}
+                onChange={(e) => setCategoryForm({...categoryForm, image: e.target.value})}
+                placeholder="https://images.unsplash.com/..."
+              />
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button onClick={editingCategory ? handleEditCategory : handleAddCategory} className="flex-1">
+                {editingCategory ? 'Update Category' : 'Add Category'}
+              </Button>
+              <Button variant="outline" onClick={() => {
+                setIsAddingCategory(false);
+                setEditingCategory(null);
+                resetForm();
+              }} className="flex-1">
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
