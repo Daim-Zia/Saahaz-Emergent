@@ -156,6 +156,23 @@ const Header = ({ onMenuClick, cartCount }) => {
     }
   };
 
+  // Close search when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isSearchOpen && !event.target.closest('.search-container')) {
+        setIsSearchOpen(false);
+        setSearchQuery('');
+        setSearchResults([]);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      clearTimeout(window.searchTimeout);
+    };
+  }, [isSearchOpen]);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
