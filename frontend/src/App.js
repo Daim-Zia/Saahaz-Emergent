@@ -2099,38 +2099,42 @@ const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [cartInitialized, setCartInitialized] = useState(false);
 
-  // Initialize cart from localStorage
+  // Initialize cart from localStorage only once
   useEffect(() => {
-    const savedCart = localStorage.getItem('saahaz_cart');
-    console.log('Loading cart from localStorage:', savedCart); // Debug log
-    if (savedCart) {
-      try {
-        const parsedCart = JSON.parse(savedCart);
-        if (Array.isArray(parsedCart) && parsedCart.length > 0) {
-          setCart(parsedCart);
-          console.log('Cart loaded successfully:', parsedCart); // Debug log
+    const initializeCart = () => {
+      const savedCart = localStorage.getItem('saahaz_cart');
+      console.log('Initializing cart, saved data:', savedCart);
+      
+      if (savedCart && savedCart !== 'undefined') {
+        try {
+          const parsedCart = JSON.parse(savedCart);
+          if (Array.isArray(parsedCart)) {
+            setCart(parsedCart);
+            console.log('Cart initialized with:', parsedCart);
+          }
+        } catch (error) {
+          console.error('Error parsing cart from localStorage:', error);
+          localStorage.removeItem('saahaz_cart');
+          setCart([]);
         }
-      } catch (error) {
-        console.error('Error loading cart from localStorage:', error);
-        localStorage.removeItem('saahaz_cart');
       }
-    }
-  }, []);
+      setCartInitialized(true);
+    };
 
-  // Save cart to localStorage whenever cart changes
-  useEffect(() => {
-    if (cart.length > 0) {
-      localStorage.setItem('saahaz_cart', JSON.stringify(cart));
-      console.log('Cart saved to localStorage:', cart); // Debug log
-    } else {
-      // Don't clear localStorage when cart is empty on initialization
-      const existingCart = localStorage.getItem('saahaz_cart');
-      if (existingCart && JSON.parse(existingCart).length > 0) {
-        console.log('Keeping existing cart in localStorage'); // Debug log
-      }
+    if (!cartInitialized) {
+      initializeCart();
     }
-  }, [cart]);
+  }, [cartInitialized]);
+
+  // Save cart to localStorage whenever cart changes (but only after initialization)
+  useEffect(() => {
+    if (cartInitialized) {
+      localStorage.setItem('saahaz_cart', JSON.stringify(cart));
+      console.log('Cart saved to localStorage:', cart);
+    }
+  }, [cart, cartInitialized]);
 
   // Auth functions
   const login = async (email, password) => {
@@ -2177,6 +2181,14 @@ const AppProvider = ({ children }) => {
 
   // Cart functions
   const addToCart = (productId, quantity = 1, size = null, color = null) => {
+    const newItem = { 
+      product_id: productId, 
+      quantity, 
+      size, 
+      color,
+      id: Date.now() + Math.random() // Unique ID
+    };
+
     setCart(prevCart => {
       const existingItemIndex = prevCart.findIndex(item => 
         item.product_id === productId && 
@@ -2194,16 +2206,10 @@ const AppProvider = ({ children }) => {
         );
       } else {
         // Add new item
-        newCart = [...prevCart, { 
-          product_id: productId, 
-          quantity, 
-          size, 
-          color,
-          id: Date.now() // Add unique ID for easier management
-        }];
+        newCart = [...prevCart, newItem];
       }
       
-      console.log('Cart updated:', newCart); // Debug log
+      console.log('Cart updated:', newCart);
       return newCart;
     });
   };
@@ -2213,7 +2219,7 @@ const AppProvider = ({ children }) => {
       const newCart = prevCart.filter(item => 
         !(item.product_id === productId && item.size === size && item.color === color)
       );
-      console.log('Item removed from cart:', newCart); // Debug log
+      console.log('Item removed from cart:', newCart);
       return newCart;
     });
   };
@@ -2229,14 +2235,13 @@ const AppProvider = ({ children }) => {
           ? { ...item, quantity }
           : item
       );
-      console.log('Cart quantity updated:', newCart); // Debug log
+      console.log('Cart quantity updated:', newCart);
       return newCart;
     });
   };
 
   const getCartTotal = () => {
     // This would need product prices, for now return 0
-    // In real implementation, we'd fetch product prices
     return 0;
   };
 
@@ -2269,7 +2274,7 @@ const AppProvider = ({ children }) => {
     cartCount: cart.reduce((total, item) => total + item.quantity, 0)
   };
 
-  console.log('Cart state in context:', cart); // Debug log
+  console.log('Current cart state:', cart, 'Count:', cart.reduce((total, item) => total + item.quantity, 0));
 
   return (
     <AppContext.Provider value={value}>
