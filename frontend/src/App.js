@@ -742,7 +742,7 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center space-x-2">
-        <label className="block text-sm font-medium text-white">Images</label>
+        <label className="block text-sm font-medium text-gray-700">Images</label>
         <span className="text-xs text-gray-400">({imageArray.length}/{maxImages})</span>
       </div>
       
