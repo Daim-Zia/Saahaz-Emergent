@@ -780,7 +780,7 @@ const AdminProductsTab = ({ products, setProducts, categories }) => {
       description: '',
       price: '',
       category_id: '',
-      images: [''],
+      images: [], // Ensure this is always an array
       sizes: ['S', 'M', 'L'],
       colors: ['Black', 'White'],
       inventory: '',
