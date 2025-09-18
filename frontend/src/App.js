@@ -767,7 +767,7 @@ const AdminProductsTab = ({ products, setProducts, categories }) => {
     description: '',
     price: '',
     category_id: '',
-    images: [''],
+    images: [], // Initialize as empty array
     sizes: ['S', 'M', 'L'],
     colors: ['Black', 'White'],
     inventory: '',
