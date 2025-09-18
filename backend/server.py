@@ -202,26 +202,14 @@ async def register(user_data: UserCreate):
 
 @api_router.post("/auth/login", response_model=dict)
 async def login(user_data: UserLogin):
-    print(f"DEBUG: Login attempt for email: {user_data.email}")
-    
     # Find user by email
     user_doc = await db[users_collection].find_one({"email": user_data.email})
-    print(f"DEBUG: User found: {user_doc is not None}")
     
     if not user_doc:
-        print("DEBUG: User not found")
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     # Check password
-    stored_hash = user_doc.get('password_hash', '')
-    print(f"DEBUG: Password hash exists: {bool(stored_hash)}")
-    print(f"DEBUG: Password hash length: {len(stored_hash) if stored_hash else 0}")
-    
-    password_valid = verify_password(user_data.password, stored_hash)
-    print(f"DEBUG: Password valid: {password_valid}")
-    
-    if not password_valid:
-        print("DEBUG: Password verification failed")
+    if not verify_password(user_data.password, user_doc.get('password_hash', '')):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     # FORCE is_admin to True for m.admin@saahaz.com - temporary fix
