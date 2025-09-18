@@ -3827,11 +3827,14 @@ const CheckoutPage = () => {
                   </div>
                   <div className="flex justify-between">
                     <span>Delivery:</span>
-                    <span className="text-green-600">FREE</span>
+                    <span className={getDeliveryCharge() === 0 ? "text-green-600" : "text-gray-900"}>
+                      {getDeliveryCharge() === 0 ? 'FREE' : `PKR ${getDeliveryCharge().toLocaleString()}`}
+                    </span>
                   </div>
+                  <Separator />
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total:</span>
-                    <span>PKR {cartTotal.toLocaleString()}</span>
+                    <span className="text-orange-600">PKR {getFinalTotal().toLocaleString()}</span>
                   </div>
                 </div>
               </CardContent>
