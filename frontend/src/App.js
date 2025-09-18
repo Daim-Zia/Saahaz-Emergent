@@ -678,6 +678,7 @@ const HeroSection = () => {
 const ProductCard = ({ product }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const { addToCart } = useAppContext();
+  const { toast, showToast, hideToast } = useToast(); // Add toast hook
 
   const handleProductClick = () => {
     window.location.href = `/product/${product.id}`;
