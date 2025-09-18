@@ -3689,16 +3689,24 @@ const CheckoutPage = () => {
 
   const handlePlaceOrder = async () => {
     if (!user) {
-      alert('Please login to place an order');
+      showToast('Please login to place an order', 'warning');
       return;
     }
 
     if (!orderForm.delivery_address || !orderForm.phone) {
-      alert('Please fill in all required fields');
+      showToast('Please fill in all required fields', 'warning');
+      return;
+    }
+
+    // Check if free delivery is available but order amount is too low
+    const selectedOption = deliveryOptions.find(opt => opt.id === selectedDelivery);
+    if (selectedOption && selectedOption.id === 'free' && cartTotal < selectedOption.minOrderAmount) {
+      showToast(`Free delivery requires minimum order of PKR ${selectedOption.minOrderAmount.toLocaleString()}`, 'warning');
       return;
     }
 
     try {
+      const deliveryCharge = getDeliveryCharge();
       const orderData = {
         items: cart.map(item => ({
           product_id: item.product_id,
@@ -3707,16 +3715,24 @@ const CheckoutPage = () => {
           color: item.color
         })),
         delivery_address: orderForm.delivery_address,
-        phone: orderForm.phone
+        phone: orderForm.phone,
+        delivery_option: selectedDelivery,
+        delivery_charge: deliveryCharge,
+        subtotal: cartTotal,
+        total: getFinalTotal()
       };
 
       const response = await axios.post(`${API}/orders`, orderData);
-      alert('Order placed successfully! Order ID: ' + response.data.id.slice(0, 8));
+      showToast('Order placed successfully! Order ID: ' + response.data.id.slice(0, 8), 'success');
       clearCart();
-      window.location.href = '/orders';
+      
+      // Redirect after a short delay to show the success toast
+      setTimeout(() => {
+        window.location.href = '/orders';
+      }, 2000);
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('Error placing order: ' + (error.response?.data?.detail || error.message));
+      showToast('Error placing order: ' + (error.response?.data?.detail || error.message), 'error');
     }
   };
 
