@@ -1716,7 +1716,7 @@ const AdminCategoriesTab = ({ categories, setCategories }) => {
 };
 
 // Admin Orders Tab
-const AdminOrdersTab = ({ orders, setOrders }) => {
+const AdminOrdersTab = ({ orders, setOrders, showToast }) => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredOrders, setFilteredOrders] = useState(orders);
