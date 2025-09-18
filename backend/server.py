@@ -1,15 +1,18 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field
-from typing import List
+from pydantic import BaseModel, Field, EmailStr
+from typing import List, Optional
 import uuid
-from datetime import datetime
-
+from datetime import datetime, timezone
+import bcrypt
+import jwt
+from passlib.context import CryptContext
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -25,32 +28,293 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Security setup
+security = HTTPBearer()
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-in-production')
+ALGORITHM = "HS256"
 
-# Define Models
-class StatusCheck(BaseModel):
+# Database Collections
+users_collection = "users"
+products_collection = "products"
+orders_collection = "orders"
+categories_collection = "categories"
+
+# Pydantic Models
+class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    email: EmailStr
+    name: str
+    is_admin: bool = False
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    name: str
+    address: Optional[str] = None
+    phone: Optional[str] = None
 
-# Add your routes to the router instead of directly to app
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class Product(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    description: str
+    price: float
+    category_id: str
+    images: List[str] = []
+    sizes: List[str] = []
+    colors: List[str] = []
+    inventory: int = 0
+    featured: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ProductCreate(BaseModel):
+    name: str
+    description: str
+    price: float
+    category_id: str
+    images: List[str] = []
+    sizes: List[str] = []
+    colors: List[str] = []
+    inventory: int = 0
+    featured: bool = False
+
+class Category(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    description: Optional[str] = None
+    image: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class CategoryCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    image: Optional[str] = None
+
+class CartItem(BaseModel):
+    product_id: str
+    quantity: int
+    size: Optional[str] = None
+    color: Optional[str] = None
+
+class Order(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    items: List[CartItem]
+    total_amount: float
+    status: str = "pending"  # pending, confirmed, shipped, delivered, cancelled
+    delivery_address: str
+    phone: str
+    payment_method: str = "cod"  # cash on delivery
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class OrderCreate(BaseModel):
+    items: List[CartItem]
+    delivery_address: str
+    phone: str
+
+# Helper functions
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+def create_access_token(data: dict):
+    return jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        token = credentials.credentials
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        
+        user = await db[users_collection].find_one({"id": user_id})
+        if user is None:
+            raise HTTPException(status_code=401, detail="User not found")
+        return User(**user)
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+# Routes
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Saahaz.com API is running!"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.dict()
-    status_obj = StatusCheck(**status_dict)
-    _ = await db.status_checks.insert_one(status_obj.dict())
-    return status_obj
+# Auth routes
+@api_router.post("/auth/register", response_model=dict)
+async def register(user_data: UserCreate):
+    # Check if user already exists
+    existing_user = await db[users_collection].find_one({"email": user_data.email})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Hash password and create user
+    hashed_password = get_password_hash(user_data.password)
+    user_dict = user_data.dict()
+    user_dict.pop('password')
+    user_dict['password_hash'] = hashed_password
+    
+    user = User(**user_dict)
+    await db[users_collection].insert_one(user.dict())
+    
+    # Create token
+    token = create_access_token({"sub": user.id})
+    return {"access_token": token, "token_type": "bearer", "user": user.dict()}
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    status_checks = await db.status_checks.find().to_list(1000)
-    return [StatusCheck(**status_check) for status_check in status_checks]
+@api_router.post("/auth/login", response_model=dict)
+async def login(user_data: UserLogin):
+    user = await db[users_collection].find_one({"email": user_data.email})
+    if not user or not verify_password(user_data.password, user['password_hash']):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    token = create_access_token({"sub": user['id']})
+    user_obj = User(**user)
+    return {"access_token": token, "token_type": "bearer", "user": user_obj.dict()}
+
+# Category routes
+@api_router.get("/categories", response_model=List[Category])
+async def get_categories():
+    categories = await db[categories_collection].find().to_list(1000)
+    return [Category(**category) for category in categories]
+
+@api_router.post("/categories", response_model=Category)
+async def create_category(category_data: CategoryCreate, current_user: User = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    category = Category(**category_data.dict())
+    await db[categories_collection].insert_one(category.dict())
+    return category
+
+# Product routes
+@api_router.get("/products", response_model=List[Product])
+async def get_products(category_id: Optional[str] = None, featured: Optional[bool] = None):
+    filter_query = {}
+    if category_id:
+        filter_query["category_id"] = category_id
+    if featured is not None:
+        filter_query["featured"] = featured
+    
+    products = await db[products_collection].find(filter_query).to_list(1000)
+    return [Product(**product) for product in products]
+
+@api_router.get("/products/{product_id}", response_model=Product)
+async def get_product(product_id: str):
+    product = await db[products_collection].find_one({"id": product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return Product(**product)
+
+@api_router.post("/products", response_model=Product)
+async def create_product(product_data: ProductCreate, current_user: User = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    product = Product(**product_data.dict())
+    await db[products_collection].insert_one(product.dict())
+    return product
+
+@api_router.put("/products/{product_id}", response_model=Product)
+async def update_product(product_id: str, product_data: ProductCreate, current_user: User = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    updated_product = product_data.dict()
+    result = await db[products_collection].update_one(
+        {"id": product_id}, 
+        {"$set": updated_product}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    product = await db[products_collection].find_one({"id": product_id})
+    return Product(**product)
+
+@api_router.delete("/products/{product_id}")
+async def delete_product(product_id: str, current_user: User = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    result = await db[products_collection].delete_one({"id": product_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    return {"message": "Product deleted successfully"}
+
+# Order routes
+@api_router.post("/orders", response_model=Order)
+async def create_order(order_data: OrderCreate, current_user: User = Depends(get_current_user)):
+    # Calculate total amount
+    total_amount = 0
+    for item in order_data.items:
+        product = await db[products_collection].find_one({"id": item.product_id})
+        if not product:
+            raise HTTPException(status_code=404, detail=f"Product {item.product_id} not found")
+        total_amount += product['price'] * item.quantity
+    
+    order_dict = order_data.dict()
+    order_dict['user_id'] = current_user.id
+    order_dict['total_amount'] = total_amount
+    
+    order = Order(**order_dict)
+    await db[orders_collection].insert_one(order.dict())
+    return order
+
+@api_router.get("/orders", response_model=List[Order])
+async def get_orders(current_user: User = Depends(get_current_user)):
+    if current_user.is_admin:
+        orders = await db[orders_collection].find().to_list(1000)
+    else:
+        orders = await db[orders_collection].find({"user_id": current_user.id}).to_list(1000)
+    
+    return [Order(**order) for order in orders]
+
+@api_router.put("/orders/{order_id}/status")
+async def update_order_status(order_id: str, status: str, current_user: User = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    result = await db[orders_collection].update_one(
+        {"id": order_id}, 
+        {"$set": {"status": status, "updated_at": datetime.now(timezone.utc)}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    return {"message": "Order status updated successfully"}
+
+# User profile routes
+@api_router.get("/profile", response_model=User)
+async def get_profile(current_user: User = Depends(get_current_user)):
+    return current_user
+
+@api_router.put("/profile", response_model=User)
+async def update_profile(user_data: dict, current_user: User = Depends(get_current_user)):
+    allowed_fields = ['name', 'address', 'phone']
+    update_data = {k: v for k, v in user_data.items() if k in allowed_fields}
+    
+    result = await db[users_collection].update_one(
+        {"id": current_user.id}, 
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    updated_user = await db[users_collection].find_one({"id": current_user.id})
+    return User(**updated_user)
 
 # Include the router in the main app
 app.include_router(api_router)
