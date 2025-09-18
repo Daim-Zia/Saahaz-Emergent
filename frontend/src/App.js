@@ -560,8 +560,46 @@ const Footer = () => {
 
 // Main Home Component
 const Home = () => {
-  const [categories, setCategories] = useState(mockCategories);
-  const [products, setProducts] = useState(mockProducts);
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch categories
+        const categoriesResponse = await axios.get(`${API}/categories`);
+        setCategories(categoriesResponse.data);
+        
+        // Fetch featured products
+        const productsResponse = await axios.get(`${API}/products?featured=true`);
+        setProducts(productsResponse.data);
+        
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Fall back to mock data if API fails
+        setCategories(mockCategories);
+        setProducts(mockProducts);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="loading-skeleton w-32 h-32 rounded-full mx-auto mb-4"></div>
+          <p className="text-lg">Loading Saahaz.com...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
