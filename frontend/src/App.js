@@ -957,11 +957,10 @@ const AdminProductsTab = ({ products, setProducts, categories }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Image URL</label>
-              <Input
-                value={productForm.images[0] || ''}
-                onChange={(e) => setProductForm({...productForm, images: [e.target.value]})}
-                placeholder="https://images.unsplash.com/..."
+              <ImageUpload 
+                images={productForm.images} 
+                setImages={(images) => setProductForm({...productForm, images})}
+                maxImages={5}
               />
             </div>
 
