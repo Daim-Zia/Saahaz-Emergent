@@ -126,7 +126,7 @@ const Header = ({ onMenuClick, cartCount }) => {
             </Button>
             
             <Button variant="ghost" size="sm" className="relative">
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCartIcon className="h-5 w-5" />
               {cartCount > 0 && (
                 <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs">
                   {cartCount}
