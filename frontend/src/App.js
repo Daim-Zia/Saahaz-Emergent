@@ -1160,7 +1160,7 @@ const AdminProductsTab = ({ products, setProducts, categories, showToast }) => {
       } else if (error.message) {
         errorMessage = error.message;
       }
-      alert('Error adding product: ' + errorMessage);
+      showToast('Error adding product: ' + errorMessage, 'error');
     }
   };
 
