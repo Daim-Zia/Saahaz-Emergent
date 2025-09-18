@@ -901,20 +901,20 @@ const AdminDashboard = () => {
   const { toast, showToast, hideToast } = useToast();
 
   useEffect(() => {
-    console.log('🔍 AdminDashboard useEffect triggered:', { 
+    console.log('AdminDashboard useEffect triggered:', { 
       user: user, 
       isAdmin: user?.is_admin,
       userExists: !!user 
     });
     
     if (!user || !user.is_admin) {
-      console.log('❌ AdminDashboard: User not admin, skipping fetch');
+      console.log('AdminDashboard: User not admin, skipping fetch');
       return;
     }
 
     const fetchAdminData = async () => {
       try {
-        console.log('🚀 AdminDashboard: Starting data fetch...');
+        console.log('AdminDashboard: Starting data fetch...');
         setLoading(true);
         
         // Only fetch products and categories to avoid orders authentication issue
@@ -923,7 +923,7 @@ const AdminDashboard = () => {
           axios.get(`${API}/categories`)
         ]);
         
-        console.log('✅ AdminDashboard: Data fetched successfully:', {
+        console.log('AdminDashboard: Data fetched successfully:', {
           productsCount: productsRes.data?.length,
           categoriesCount: categoriesRes.data?.length
         });
@@ -934,7 +934,7 @@ const AdminDashboard = () => {
         // Set orders to empty array for now
         setOrders([]);
       } catch (error) {
-        console.error('❌ AdminDashboard: Error fetching admin data:', error);
+        console.error('AdminDashboard: Error fetching admin data:', error);
         console.error('Error details:', {
           message: error.message,
           response: error.response?.data,
