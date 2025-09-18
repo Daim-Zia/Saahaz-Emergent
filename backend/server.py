@@ -301,17 +301,27 @@ async def delete_product(product_id: str, current_user: User = Depends(get_curre
 # Order routes
 @api_router.post("/orders", response_model=Order)
 async def create_order(order_data: OrderCreate, current_user: User = Depends(get_current_user)):
-    # Calculate total amount
-    total_amount = 0
+    # Calculate subtotal from items
+    subtotal = 0
     for item in order_data.items:
         product = await db[products_collection].find_one({"id": item.product_id})
         if not product:
             raise HTTPException(status_code=404, detail=f"Product {item.product_id} not found")
-        total_amount += product['price'] * item.quantity
+        subtotal += product['price'] * item.quantity
+    
+    # Use provided values or calculate them
+    delivery_charge = order_data.delivery_charge if order_data.delivery_charge is not None else 0
+    total_amount = order_data.total if order_data.total else (subtotal + delivery_charge)
     
     order_dict = order_data.dict()
     order_dict['user_id'] = current_user.id
+    order_dict['subtotal'] = subtotal
+    order_dict['delivery_charge'] = delivery_charge
     order_dict['total_amount'] = total_amount
+    
+    # Remove 'total' field as it's not in Order model (we use 'total_amount')
+    if 'total' in order_dict:
+        del order_dict['total']
     
     order = Order(**order_dict)
     await db[orders_collection].insert_one(order.dict())
