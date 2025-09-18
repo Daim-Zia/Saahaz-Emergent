@@ -3854,16 +3854,31 @@ const CheckoutPage = () => {
       const response = await axios.post(`${API}/orders`, orderData);
       const orderId = response.data.id.slice(0, 8);
       
+      // Set order confirmation details
+      setOrderConfirmation({
+        orderId: response.data.id,
+        shortId: orderId,
+        items: cart.map(item => {
+          const product = products.find(p => p.id === item.product_id);
+          return {
+            ...item,
+            productName: product?.name || 'Unknown Product',
+            productPrice: product?.price || 0
+          };
+        }),
+        deliveryAddress: orderForm.delivery_address,
+        phone: orderForm.phone,
+        deliveryOption: selectedDelivery,
+        deliveryCharge: getDeliveryCharge(),
+        subtotal: cartTotal,
+        total: getFinalTotal(),
+        orderDate: new Date().toLocaleString()
+      });
+      
       // Clear cart after successful order
       clearCart();
       
-      // Show detailed success message
-      showToast(`🎉 Order confirmed! Order ID: ${orderId}. You will be redirected to track your order.`, 'success');
-      
-      // Redirect to orders page after showing confirmation
-      setTimeout(() => {
-        window.location.href = '/orders';
-      }, 4000);
+      showToast(`🎉 Order confirmed! Order ID: ${orderId}`, 'success');
     } catch (error) {
       console.error('Error placing order:', error);
       showToast('Error placing order: ' + (error.response?.data?.detail || error.message), 'error');
