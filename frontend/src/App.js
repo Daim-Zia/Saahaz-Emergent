@@ -333,16 +333,20 @@ const ProductCard = ({ product }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const { addToCart } = useAppContext();
 
+  const handleProductClick = () => {
+    window.location.href = `/product/${product.id}`;
+  };
+
   return (
-    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300">
-      <div className="relative aspect-square overflow-hidden">
+    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
+      <div className="relative aspect-square overflow-hidden" onClick={handleProductClick}>
         <img
           src={product.images[selectedImage] || product.images[0]}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
         <div className="absolute top-4 right-4">
-          <Button variant="ghost" size="sm" className="h-8 w-8 rounded-full bg-white/80 hover:bg-white">
+          <Button variant="ghost" size="sm" className="h-8 w-8 rounded-full bg-white/80 hover:bg-white" onClick={(e) => e.stopPropagation()}>
             <Heart className="h-4 w-4" />
           </Button>
         </div>
@@ -353,7 +357,7 @@ const ProductCard = ({ product }) => {
         )}
       </div>
 
-      <CardContent className="p-4">
+      <CardContent className="p-4" onClick={handleProductClick}>
         <h3 className="font-semibold text-lg mb-2 group-hover:text-orange-500 transition-colors">
           {product.name}
         </h3>
@@ -385,7 +389,11 @@ const ProductCard = ({ product }) => {
       <CardFooter className="p-4 pt-0">
         <Button 
           className="w-full bg-orange-500 hover:bg-orange-600" 
-          onClick={() => addToCart(product.id, 1)}
+          onClick={(e) => {
+            e.stopPropagation();
+            addToCart(product.id, 1);
+            alert('Added to cart!');
+          }}
         >
           <ShoppingCartIcon className="mr-2 h-4 w-4" />
           Add to Cart
