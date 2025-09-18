@@ -297,7 +297,7 @@ class SaahazAPITester:
         return success
 
     def test_create_order(self):
-        """Test creating an order"""
+        """Test creating an order with comprehensive validation"""
         # First get a product to order
         success, products = self.run_test("Get Products for Order", "GET", "products", 200)
         if not success or not products:
@@ -310,18 +310,36 @@ class SaahazAPITester:
                 {
                     "product_id": product['id'],
                     "quantity": 2,
-                    "size": product['sizes'][0] if product['sizes'] else None,
-                    "color": product['colors'][0] if product['colors'] else None
+                    "size": product['sizes'][0] if product['sizes'] else "M",
+                    "color": product['colors'][0] if product['colors'] else "Blue"
                 }
             ],
-            "delivery_address": "Test Delivery Address, Lahore, Pakistan",
-            "phone": "+92 300 1234567"
+            "delivery_address": "123 Fashion Street, Gulberg III, Lahore, Punjab, Pakistan",
+            "phone": "+92 300 1234567",
+            "delivery_option": "standard",
+            "delivery_charge": 200.0,
+            "subtotal": product['price'] * 2,
+            "total": (product['price'] * 2) + 200.0
         }
         
         success, response = self.run_test("Create Order", "POST", "orders", 200, order_data)
         if success:
             print(f"   Order created with ID: {response.get('id', 'Unknown')}")
+            print(f"   Subtotal: PKR {response.get('subtotal', 0)}")
+            print(f"   Delivery Charge: PKR {response.get('delivery_charge', 0)}")
             print(f"   Total amount: PKR {response.get('total_amount', 0)}")
+            print(f"   Delivery Option: {response.get('delivery_option', 'Unknown')}")
+            print(f"   Status: {response.get('status', 'Unknown')}")
+            
+            # Validate required fields are present
+            required_fields = ['id', 'user_id', 'items', 'subtotal', 'delivery_charge', 'total_amount', 'delivery_option', 'delivery_address', 'phone']
+            missing_fields = [field for field in required_fields if field not in response]
+            if missing_fields:
+                print(f"   ⚠️ Missing fields in response: {missing_fields}")
+                return False
+            else:
+                print("   ✅ All required fields present in order response")
+                
         return success
 
     def test_get_orders(self):
