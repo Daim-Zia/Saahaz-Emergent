@@ -12,7 +12,7 @@ import uuid
 from datetime import datetime, timezone, timedelta
 import bcrypt
 import jwt
-from jwt import JWTError
+from jwt.exceptions import JWTError
 from passlib.context import CryptContext
 import aiohttp
 
