@@ -3885,6 +3885,109 @@ const CheckoutPage = () => {
     }
   };
 
+  // Show order confirmation if order was just placed
+  if (orderConfirmation) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          isVisible={toast.isVisible} 
+          onClose={hideToast} 
+        />
+        
+        <div className="container mx-auto px-4 max-w-2xl">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="h-8 w-8 text-green-600" />
+              </div>
+              <h1 className="text-3xl font-bold text-green-600 mb-2">Order Confirmed!</h1>
+              <p className="text-gray-600">Thank you for your order. We'll start processing it right away.</p>
+            </div>
+
+            <div className="border rounded-lg p-6 mb-6">
+              <h2 className="text-xl font-semibold mb-4">Order Details</h2>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <span className="text-gray-600">Order ID:</span>
+                  <p className="font-semibold">{orderConfirmation.shortId}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Order Date:</span>
+                  <p className="font-semibold">{orderConfirmation.orderDate}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Phone:</span>
+                  <p className="font-semibold">{orderConfirmation.phone}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Delivery:</span>
+                  <p className="font-semibold">{deliveryOptions.find(opt => opt.id === orderConfirmation.deliveryOption)?.name}</p>
+                </div>
+              </div>
+              
+              <div className="mb-4">
+                <span className="text-gray-600">Delivery Address:</span>
+                <p className="font-semibold">{orderConfirmation.deliveryAddress}</p>
+              </div>
+            </div>
+
+            <div className="border rounded-lg p-6 mb-6">
+              <h3 className="text-lg font-semibold mb-4">Items Ordered</h3>
+              {orderConfirmation.items.map((item, index) => (
+                <div key={index} className="flex justify-between items-center py-2 border-b last:border-b-0">
+                  <div>
+                    <p className="font-semibold">{item.productName}</p>
+                    <p className="text-sm text-gray-600">
+                      Size: {item.size}, Color: {item.color}, Qty: {item.quantity}
+                    </p>
+                  </div>
+                  <p className="font-semibold">PKR {(item.productPrice * item.quantity).toLocaleString()}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="border rounded-lg p-6 mb-6">
+              <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>Subtotal:</span>
+                  <span>PKR {orderConfirmation.subtotal.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Delivery:</span>
+                  <span>PKR {orderConfirmation.deliveryCharge.toLocaleString()}</span>
+                </div>
+                <Separator className="my-2" />
+                <div className="flex justify-between text-lg font-bold">
+                  <span>Total:</span>
+                  <span>PKR {orderConfirmation.total.toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <Button 
+                onClick={() => window.location.href = '/orders'}
+                className="flex-1"
+              >
+                Track Your Orders
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.href = '/products'}
+                className="flex-1"
+              >
+                Continue Shopping
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (cart.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
