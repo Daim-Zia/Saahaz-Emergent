@@ -3596,6 +3596,59 @@ const CheckoutPage = () => {
     phone: ''
   });
   const [cartTotal, setCartTotal] = useState(0);
+  const [selectedDelivery, setSelectedDelivery] = useState('standard');
+  const { toast, showToast, hideToast } = useToast();
+
+  // Delivery options with charges
+  const deliveryOptions = [
+    {
+      id: 'standard',
+      name: 'Standard Delivery',
+      description: '5-7 business days',
+      charge: 150,
+      icon: '📦'
+    },
+    {
+      id: 'express',
+      name: 'Express Delivery', 
+      description: '2-3 business days',
+      charge: 300,
+      icon: '🚚'
+    },
+    {
+      id: 'next_day',
+      name: 'Next Day Delivery',
+      description: 'Next business day',
+      charge: 500,
+      icon: '⚡'
+    },
+    {
+      id: 'free',
+      name: 'Free Delivery',
+      description: '7-10 business days (Orders above PKR 3,000)',
+      charge: 0,
+      icon: '🆓',
+      minOrderAmount: 3000
+    }
+  ];
+
+  // Calculate delivery charge based on selection and cart total
+  const getDeliveryCharge = () => {
+    const option = deliveryOptions.find(opt => opt.id === selectedDelivery);
+    if (!option) return 0;
+    
+    // Free delivery for orders above minimum amount
+    if (option.id === 'free' && cartTotal >= option.minOrderAmount) {
+      return 0;
+    }
+    
+    return option.charge;
+  };
+
+  // Calculate final total including delivery
+  const getFinalTotal = () => {
+    return cartTotal + getDeliveryCharge();
+  };
 
   useEffect(() => {
     const fetchCartProducts = async () => {
