@@ -40,6 +40,7 @@ users_collection = "users"
 products_collection = "products"
 orders_collection = "orders"
 categories_collection = "categories"
+sessions_collection = "sessions"  # For Google OAuth sessions
 
 # Pydantic Models
 class User(BaseModel):
