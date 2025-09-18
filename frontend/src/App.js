@@ -306,35 +306,66 @@ const AuthDialog = () => {
   );
 };
 
-// Hero Section Component
+// Hero Section Component - Luxury Theme
 const HeroSection = () => {
   return (
-    <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
+    <section className="relative h-[700px] flex items-center justify-center overflow-hidden luxury-hero">
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzh8MHwxfHNlYXJjaHwxfHxmYXNoaW9ufGVufDB8fHx8MTc1ODA1OTk4NHww&ixlib=rb-4.1.0&q=85')`
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzh8MHwxfHNlYXJjaHwxfHxmYXNoaW9ufGVufDB8fHx8MTc1ODA1OTk4NHww&ixlib=rb-4.1.0&q=85')`
         }}
       />
       
-      <div className="relative z-10 text-center text-white max-w-4xl px-4">
-        <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-          Fashion That Speaks
-          <span className="block text-orange-400">Your Language</span>
+      {/* Luxury overlay pattern */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="w-full h-full" style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(212,175,55,0.3) 1px, transparent 0)`,
+          backgroundSize: '40px 40px'
+        }}></div>
+      </div>
+      
+      <div className="relative z-10 text-center text-white max-w-5xl px-4 luxury-fade-in">
+        <h1 className="text-6xl md:text-7xl font-bold mb-8 leading-tight font-serif">
+          <span className="block text-white">Luxury Fashion</span>
+          <span className="block gradient-text gold-shimmer">Redefined</span>
         </h1>
-        <p className="text-xl md:text-2xl mb-8 opacity-90">
-          Discover premium apparel that defines your style. From casual elegance to formal sophistication.
+        <p className="text-xl md:text-2xl mb-10 opacity-90 font-light max-w-3xl mx-auto leading-relaxed">
+          Discover premium couture that embodies sophistication and elegance. 
+          Where luxury meets contemporary design in Pakistan's finest fashion destination.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3" 
-                  onClick={() => window.location.href = '/products'}>
-            Shop Now
-            <ArrowRight className="ml-2 h-5 w-5" />
+        <div className="flex flex-col sm:flex-row gap-6 justify-center">
+          <Button 
+            size="lg" 
+            className="luxury-button text-lg px-10 py-4 h-auto" 
+            onClick={() => window.location.href = '/products'}
+          >
+            Explore Collection
+            <ArrowRight className="ml-3 h-6 w-6" />
           </Button>
-          <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-black px-8 py-3"
-                  onClick={() => window.location.href = '/categories'}>
-            Explore Collections
+          <Button 
+            size="lg" 
+            className="luxury-button-outline text-lg px-10 py-4 h-auto"
+            onClick={() => window.location.href = '/categories'}
+          >
+            Shop Categories
           </Button>
+        </div>
+        
+        {/* Luxury indicators */}
+        <div className="flex justify-center items-center space-x-8 mt-12 text-sm uppercase tracking-widest text-gray-300">
+          <div className="flex items-center space-x-2">
+            <Truck className="h-4 w-4 text-yellow-400" />
+            <span>Free Delivery</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Shield className="h-4 w-4 text-yellow-400" />
+            <span>Premium Quality</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Package className="h-4 w-4 text-yellow-400" />
+            <span>Easy Returns</span>
+          </div>
         </div>
       </div>
     </section>
