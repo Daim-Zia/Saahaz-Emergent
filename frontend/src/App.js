@@ -3559,6 +3559,20 @@ const Home = () => {
         });
         console.log('Products response:', productsResponse.data);
         console.log('Setting products state with:', productsResponse.data);
+        
+        // Debug: Check what images look like in the response
+        if (productsResponse.data && productsResponse.data.length > 0) {
+          productsResponse.data.forEach((product, index) => {
+            console.log(`Product ${index} (${product.name}):`, {
+              id: product.id,
+              imageCount: product.images ? product.images.length : 0,
+              images: product.images ? product.images.map(img => 
+                typeof img === 'string' ? `${img.substring(0, 50)}... (length: ${img.length})` : img
+              ) : 'no images'
+            });
+          });
+        }
+        
         setProducts(productsResponse.data);
         
         // Force a re-render by logging the state after setting
