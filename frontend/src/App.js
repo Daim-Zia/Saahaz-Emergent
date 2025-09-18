@@ -778,6 +778,7 @@ const ProductCard = ({ product }) => {
         </Button>
       </CardFooter>
     </Card>
+    </>
   );
 };
 
