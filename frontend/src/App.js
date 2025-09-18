@@ -1192,7 +1192,7 @@ const AdminProductsTab = ({ products, setProducts, categories, showToast }) => {
       } else if (error.message) {
         errorMessage = error.message;
       }
-      alert('Error updating product: ' + errorMessage);
+      showToast('Error updating product: ' + errorMessage, 'error');
     }
   };
 
