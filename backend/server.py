@@ -195,9 +195,9 @@ async def login(user_data: UserLogin):
     if not verify_password(user_data.password, user_doc.get('password_hash', '')):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    # FORCE is_admin to True for admin@saahaz.com - temporary fix
+    # FORCE is_admin to True for m.admin - temporary fix
     user_response = {k: v for k, v in user_doc.items() if k != 'password_hash'}
-    if user_response.get('email') == 'admin@saahaz.com':
+    if user_response.get('email') == 'm.admin':
         user_response['is_admin'] = True
     
     user_obj = User(**user_response)
