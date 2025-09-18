@@ -2286,6 +2286,7 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [isInWishlist, setIsInWishlist] = useState(false);
   const { addToCart, user } = useAppContext();
+  const { toast, showToast, hideToast } = useToast();
 
   useEffect(() => {
     const fetchProduct = async () => {
