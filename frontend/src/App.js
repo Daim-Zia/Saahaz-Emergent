@@ -502,7 +502,12 @@ const CategoriesSection = ({ categories }) => {
 
 // Featured Products Section
 const FeaturedProductsSection = ({ products }) => {
+  console.log('FeaturedProductsSection received products:', products);
+  console.log('Products length:', products ? products.length : 'undefined');
+  
   const featuredProducts = products.filter(product => product.featured);
+  console.log('Filtered featured products:', featuredProducts);
+  console.log('Featured products count:', featuredProducts.length);
 
   return (
     <section className="py-16">
