@@ -639,8 +639,11 @@ const AdminDashboard = () => {
 };
 
 // Image Upload Component
-const ImageUpload = ({ images, setImages, maxImages = 5 }) => {
+const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
   const [uploading, setUploading] = useState(false);
+  
+  // Ensure images is always an array
+  const imageArray = Array.isArray(images) ? images : (images ? [images] : []);
 
   const handleImageUpload = (event) => {
     const files = Array.from(event.target.files);
@@ -650,7 +653,10 @@ const ImageUpload = ({ images, setImages, maxImages = 5 }) => {
         const reader = new FileReader();
         reader.onload = (e) => {
           const newImage = e.target.result;
-          setImages(prev => [...prev.slice(0, maxImages - 1), newImage]);
+          setImages(prev => {
+            const currentImages = Array.isArray(prev) ? prev : (prev ? [prev] : []);
+            return [...currentImages.slice(0, maxImages - 1), newImage];
+          });
         };
         reader.readAsDataURL(file);
       }
@@ -658,31 +664,40 @@ const ImageUpload = ({ images, setImages, maxImages = 5 }) => {
   };
 
   const removeImage = (index) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
+    setImages(prev => {
+      const currentImages = Array.isArray(prev) ? prev : (prev ? [prev] : []);
+      return currentImages.filter((_, i) => i !== index);
+    });
   };
 
   const addImageUrl = () => {
     const url = prompt('Enter image URL:');
     if (url && url.trim()) {
-      setImages(prev => [...prev, url.trim()]);
+      setImages(prev => {
+        const currentImages = Array.isArray(prev) ? prev : (prev ? [prev] : []);
+        return [...currentImages, url.trim()];
+      });
     }
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center space-x-2">
-        <label className="block text-sm font-medium">Product Images</label>
-        <span className="text-xs text-muted-foreground">({images.length}/{maxImages})</span>
+        <label className="block text-sm font-medium">Images</label>
+        <span className="text-xs text-muted-foreground">({imageArray.length}/{maxImages})</span>
       </div>
       
       {/* Image Preview Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {images.map((image, index) => (
+        {imageArray.map((image, index) => (
           <div key={index} className="relative group">
             <img
               src={image}
-              alt={`Product ${index + 1}`}
+              alt={`Image ${index + 1}`}
               className="w-full h-24 object-cover rounded border"
+              onError={(e) => {
+                e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMiA5VjEzTTE1IDEwLjVWMTEuNUw5IDEyLjVWMTAuNU0xMiAxNkg5TDE1IDE0SDE4VjEwSDZWMTRIMTJaIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=';
+              }}
             />
             <button
               type="button"
@@ -695,7 +710,7 @@ const ImageUpload = ({ images, setImages, maxImages = 5 }) => {
         ))}
         
         {/* Add Image Placeholder */}
-        {images.length < maxImages && (
+        {imageArray.length < maxImages && (
           <div className="border-2 border-dashed border-gray-300 rounded p-4 flex flex-col items-center justify-center h-24 hover:border-orange-500 transition-colors">
             <Plus className="h-6 w-6 text-gray-400 mb-1" />
             <span className="text-xs text-gray-500">Add Image</span>
@@ -712,13 +727,13 @@ const ImageUpload = ({ images, setImages, maxImages = 5 }) => {
             multiple
             onChange={handleImageUpload}
             className="hidden"
-            disabled={images.length >= maxImages}
+            disabled={imageArray.length >= maxImages}
           />
           <Button 
             type="button" 
             variant="outline" 
             size="sm"
-            disabled={images.length >= maxImages}
+            disabled={imageArray.length >= maxImages}
             asChild
           >
             <span>Upload Images</span>
@@ -730,7 +745,7 @@ const ImageUpload = ({ images, setImages, maxImages = 5 }) => {
           variant="outline" 
           size="sm"
           onClick={addImageUrl}
-          disabled={images.length >= maxImages}
+          disabled={imageArray.length >= maxImages}
         >
           Add URL
         </Button>
