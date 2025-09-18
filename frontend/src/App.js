@@ -2445,9 +2445,18 @@ const ProductDetails = () => {
               </Button>
               
               {user && (
-                <Button variant="outline" size="lg" className="w-full">
-                  <Heart className="mr-2 h-5 w-5" />
-                  Add to Wishlist
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className={`w-full transition-all ${
+                    isInWishlist 
+                      ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' 
+                      : 'hover:bg-orange-50 hover:border-orange-200'
+                  }`}
+                  onClick={handleAddToWishlist}
+                >
+                  <Heart className={`mr-2 h-5 w-5 ${isInWishlist ? 'fill-red-500 text-red-500' : ''}`} />
+                  {isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
                 </Button>
               )}
             </div>
