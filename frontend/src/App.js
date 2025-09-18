@@ -433,7 +433,8 @@ const CategoriesSection = ({ categories }) => {
                 <div className="absolute bottom-6 left-6 text-white">
                   <h3 className="text-2xl font-bold mb-2">{category.name}</h3>
                   <p className="text-sm opacity-90">{category.description}</p>
-                  <Button className="mt-4 bg-orange-500 hover:bg-orange-600">
+                  <Button className="mt-4 bg-orange-500 hover:bg-orange-600" 
+                          onClick={() => window.location.href = `/products?category=${category.id}`}>
                     Shop Now
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
