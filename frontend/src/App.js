@@ -1988,6 +1988,508 @@ const CustomerSettings = () => {
   );
 };
 
+// Products Page Component
+const ProductsPage = () => {
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [productsRes, categoriesRes] = await Promise.all([
+          axios.get(`${API}/products${selectedCategory ? `?category_id=${selectedCategory}` : ''}`),
+          axios.get(`${API}/categories`)
+        ]);
+        setProducts(productsRes.data);
+        setCategories(categoriesRes.data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [selectedCategory]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="loading-skeleton w-32 h-32 rounded-full mx-auto mb-4"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4">
+        <h1 className="text-3xl font-bold mb-8">All Products</h1>
+
+        {/* Category Filter */}
+        <div className="mb-8">
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={selectedCategory === '' ? 'default' : 'outline'}
+              onClick={() => setSelectedCategory('')}
+            >
+              All Categories
+            </Button>
+            {categories.map(category => (
+              <Button
+                key={category.id}
+                variant={selectedCategory === category.id ? 'default' : 'outline'}
+                onClick={() => setSelectedCategory(category.id)}
+              >
+                {category.name}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Products Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+
+        {products.length === 0 && (
+          <div className="text-center py-12">
+            <Package className="h-24 w-24 mx-auto mb-4 text-muted-foreground" />
+            <h2 className="text-2xl font-bold mb-4">No Products Found</h2>
+            <p className="text-muted-foreground">Try selecting a different category.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Categories Page Component
+const CategoriesPage = () => {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(`${API}/categories`);
+        setCategories(response.data);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="loading-skeleton w-32 h-32 rounded-full mx-auto mb-4"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4">
+        <h1 className="text-3xl font-bold mb-8">Shop by Category</h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {categories.map((category) => (
+            <Card key={category.id} className="group cursor-pointer overflow-hidden hover:shadow-xl transition-all duration-300"
+                  onClick={() => window.location.href = `/products?category=${category.id}`}>
+              <div className="relative aspect-[4/3] overflow-hidden">
+                <img
+                  src={category.image}
+                  alt={category.name}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute bottom-6 left-6 text-white">
+                  <h3 className="text-2xl font-bold mb-2">{category.name}</h3>
+                  <p className="text-sm opacity-90">{category.description}</p>
+                  <Button className="mt-4 bg-orange-500 hover:bg-orange-600">
+                    Shop Now
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// About Page Component
+const AboutPage = () => {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <section className="bg-white py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">About Saahaz.com</h1>
+            <p className="text-xl text-muted-foreground">
+              Pakistan's premier destination for contemporary fashion that speaks your language.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Our Story */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-bold mb-6">Our Story</h2>
+              <p className="text-muted-foreground mb-4">
+                Founded with a vision to make premium fashion accessible to everyone in Pakistan, 
+                Saahaz.com has become the go-to destination for style-conscious individuals who 
+                appreciate quality and affordability.
+              </p>
+              <p className="text-muted-foreground mb-4">
+                We believe that fashion is more than just clothing – it's a form of self-expression 
+                that should be accessible to all. Our carefully curated collection features the 
+                latest trends alongside timeless classics.
+              </p>
+              <p className="text-muted-foreground">
+                From casual wear to formal attire, we offer a diverse range of products that cater 
+                to every style preference and occasion.
+              </p>
+            </div>
+            <div className="aspect-square overflow-hidden rounded-lg">
+              <img
+                src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwyfHxjbG90aGluZ3xlbnwwfHx8fDE3NTgxNTc2ODR8MA&ixlib=rb-4.1.0&q=85"
+                alt="Our Story"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Why Choose Saahaz?</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-6">
+                <Truck className="h-8 w-8 text-orange-500" />
+              </div>
+              <h3 className="text-xl font-semibold mb-4">Free Delivery</h3>
+              <p className="text-muted-foreground">
+                Enjoy free cash-on-delivery service across Pakistan. No hidden charges, 
+                no minimum order requirements.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-6">
+                <Shield className="h-8 w-8 text-orange-500" />
+              </div>
+              <h3 className="text-xl font-semibold mb-4">Quality Guarantee</h3>
+              <p className="text-muted-foreground">
+                We source only the finest materials and work with trusted manufacturers 
+                to ensure every product meets our high standards.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-6">
+                <Package className="h-8 w-8 text-orange-500" />
+              </div>
+              <h3 className="text-xl font-semibold mb-4">Easy Returns</h3>
+              <p className="text-muted-foreground">
+                Not satisfied with your purchase? Our 7-day return policy ensures 
+                your complete peace of mind.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Info */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold mb-6">Get in Touch</h2>
+            <p className="text-muted-foreground mb-8">
+              Have questions? We'd love to hear from you. Reach out to our friendly team.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <h4 className="font-semibold mb-2">Email</h4>
+                  <p className="text-muted-foreground">info@saahaz.com</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <h4 className="font-semibold mb-2">Phone</h4>
+                  <p className="text-muted-foreground">+92 XXX XXXXXXX</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <h4 className="font-semibold mb-2">Address</h4>
+                  <p className="text-muted-foreground">Lahore, Pakistan</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+// Checkout Page Component
+const CheckoutPage = () => {
+  const { cart, user, clearCart } = useAppContext();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [orderForm, setOrderForm] = useState({
+    delivery_address: '',
+    phone: ''
+  });
+  const [cartTotal, setCartTotal] = useState(0);
+
+  useEffect(() => {
+    const fetchCartProducts = async () => {
+      if (cart.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const uniqueProductIds = [...new Set(cart.map(item => item.product_id))];
+        const productPromises = uniqueProductIds.map(productId =>
+          axios.get(`${API}/products/${productId}`)
+        );
+        
+        const responses = await Promise.all(productPromises);
+        const fetchedProducts = responses.map(response => response.data);
+        setProducts(fetchedProducts);
+        
+        // Calculate total
+        let total = 0;
+        cart.forEach(cartItem => {
+          const product = fetchedProducts.find(p => p.id === cartItem.product_id);
+          if (product) {
+            total += product.price * cartItem.quantity;
+          }
+        });
+        setCartTotal(total);
+        
+      } catch (error) {
+        console.error('Error fetching cart products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCartProducts();
+  }, [cart]);
+
+  const handlePlaceOrder = async () => {
+    if (!user) {
+      alert('Please login to place an order');
+      return;
+    }
+
+    if (!orderForm.delivery_address || !orderForm.phone) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      const orderData = {
+        items: cart.map(item => ({
+          product_id: item.product_id,
+          quantity: item.quantity,
+          size: item.size,
+          color: item.color
+        })),
+        delivery_address: orderForm.delivery_address,
+        phone: orderForm.phone
+      };
+
+      const response = await axios.post(`${API}/orders`, orderData);
+      alert('Order placed successfully! Order ID: ' + response.data.id.slice(0, 8));
+      clearCart();
+      window.location.href = '/orders';
+    } catch (error) {
+      console.error('Error placing order:', error);
+      alert('Error placing order: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  if (cart.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <ShoppingCartIcon className="h-24 w-24 mx-auto mb-4 text-muted-foreground" />
+          <h2 className="text-2xl font-bold mb-4">Your Cart is Empty</h2>
+          <p className="text-muted-foreground mb-6">Add some products before checkout!</p>
+          <Button onClick={() => window.location.href = '/products'}>
+            Continue Shopping
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <h2 className="text-2xl font-bold mb-4">Login Required</h2>
+            <p className="mb-4">Please login to proceed with checkout.</p>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button>Login</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <AuthDialog />
+              </DialogContent>
+            </Dialog>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4 max-w-4xl">
+        <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Order Details */}
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Order Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {cart.map((item, index) => {
+                  const product = products.find(p => p.id === item.product_id);
+                  if (!product) return null;
+
+                  return (
+                    <div key={index} className="flex items-center space-x-4 p-3 border rounded">
+                      <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="w-16 h-16 object-cover rounded"
+                      />
+                      <div className="flex-1">
+                        <h4 className="font-medium">{product.name}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {item.size && `Size: ${item.size}`}
+                          {item.size && item.color && ' | '}
+                          {item.color && `Color: ${item.color}`}
+                        </p>
+                        <p className="text-sm">Qty: {item.quantity}</p>
+                      </div>
+                      <p className="font-semibold">PKR {(product.price * item.quantity).toLocaleString()}</p>
+                    </div>
+                  );
+                })}
+
+                <Separator />
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>Subtotal:</span>
+                    <span>PKR {cartTotal.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Delivery:</span>
+                    <span className="text-green-600">FREE</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-lg">
+                    <span>Total:</span>
+                    <span>PKR {cartTotal.toLocaleString()}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Delivery Information */}
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Delivery Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Full Address *</label>
+                  <textarea
+                    className="w-full p-3 border rounded-md"
+                    rows="4"
+                    placeholder="Enter your complete delivery address including city and postal code"
+                    value={orderForm.delivery_address}
+                    onChange={(e) => setOrderForm({...orderForm, delivery_address: e.target.value})}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Phone Number *</label>
+                  <Input
+                    type="tel"
+                    placeholder="+92 300 1234567"
+                    value={orderForm.phone}
+                    onChange={(e) => setOrderForm({...orderForm, phone: e.target.value})}
+                    required
+                  />
+                </div>
+
+                <div className="p-4 bg-orange-50 rounded-md">
+                  <h4 className="font-medium text-orange-800 mb-2">Payment Method</h4>
+                  <p className="text-sm text-orange-700">Cash on Delivery (COD)</p>
+                  <p className="text-xs text-orange-600 mt-1">
+                    Pay when your order is delivered to your doorstep
+                  </p>
+                </div>
+
+                <Button 
+                  size="lg" 
+                  className="w-full bg-orange-500 hover:bg-orange-600"
+                  onClick={handlePlaceOrder}
+                >
+                  Place Order - PKR {cartTotal.toLocaleString()}
+                </Button>
+
+                <p className="text-xs text-muted-foreground text-center">
+                  By placing your order, you agree to our terms and conditions
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Footer Component
 const Footer = () => {
   return (
