@@ -125,7 +125,7 @@ const Header = ({ onMenuClick, cartCount }) => {
               <Search className="h-5 w-5" />
             </Button>
             
-            <Button variant="ghost" size="sm" className="relative">
+            <Button variant="ghost" size="sm" className="relative" onClick={() => window.location.href = '/cart'}>
               <ShoppingCartIcon className="h-5 w-5" />
               {cartCount > 0 && (
                 <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs">
