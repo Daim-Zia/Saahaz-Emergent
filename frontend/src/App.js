@@ -3853,20 +3853,16 @@ const CheckoutPage = () => {
       const response = await axios.post(`${API}/orders`, orderData);
       const orderId = response.data.id.slice(0, 8);
       
-      showToast(`Order placed successfully! Order ID: ${orderId}`, 'success');
-      
       // Clear cart after successful order
       clearCart();
       
-      // Show order confirmation with details
-      setTimeout(() => {
-        showToast(`Your order ${orderId} is confirmed! Redirecting to order history...`, 'info');
-      }, 1000);
+      // Show detailed success message
+      showToast(`🎉 Order confirmed! Order ID: ${orderId}. You will be redirected to track your order.`, 'success');
       
       // Redirect to orders page after showing confirmation
       setTimeout(() => {
         window.location.href = '/orders';
-      }, 3000);
+      }, 4000);
     } catch (error) {
       console.error('Error placing order:', error);
       showToast('Error placing order: ' + (error.response?.data?.detail || error.message), 'error');
