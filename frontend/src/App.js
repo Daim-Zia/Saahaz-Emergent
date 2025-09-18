@@ -806,7 +806,7 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
           size="sm"
           onClick={addImageUrl}
           disabled={imageArray.length >= maxImages}
-          className="border-gray-600 text-white hover:bg-gray-700"
+          className="border-gray-300 text-gray-700 hover:bg-gray-50"
         >
           Add URL
         </Button>
