@@ -709,16 +709,33 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
     const promises = files.map(file => {
       return new Promise((resolve, reject) => {
         if (file.type.startsWith('image/')) {
+          // Check file size (limit to 2MB to prevent issues)
+          if (file.size > 2 * 1024 * 1024) {
+            reject(new Error(`File ${file.name} is too large (${Math.round(file.size / 1024 / 1024)}MB). Please use images smaller than 2MB.`));
+            return;
+          }
+          
           const reader = new FileReader();
           reader.onload = (e) => {
             // Get the base64 result
             const base64Result = e.target.result;
-            console.log('Image uploaded successfully, size:', base64Result.length);
+            console.log('Image uploaded successfully:', {
+              filename: file.name,
+              size: file.size,
+              base64Length: base64Result.length
+            });
+            
+            // Additional check for base64 length (should be reasonable for database storage)
+            if (base64Result.length > 1.5 * 1024 * 1024) { // ~1.5MB base64 limit
+              reject(new Error(`Image ${file.name} is too large after encoding. Please use a smaller image.`));
+              return;
+            }
+            
             resolve(base64Result);
           };
           reader.onerror = (error) => {
             console.error('FileReader error:', error);
-            reject(error);
+            reject(new Error(`Failed to read file ${file.name}`));
           };
           reader.readAsDataURL(file);
         } else {
