@@ -2202,6 +2202,10 @@ const AppContent = () => {
       />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/product/:productId" element={<ProductDetails />} />
+        <Route path="/cart" element={<ShoppingCart />} />
+        <Route path="/orders" element={<CustomerOrders />} />
+        <Route path="/settings" element={<CustomerSettings />} />
         <Route path="/admin" element={<AdminDashboard />} />
         {/* Add more routes as needed */}
       </Routes>
