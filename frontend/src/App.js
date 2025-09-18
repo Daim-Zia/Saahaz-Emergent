@@ -1095,7 +1095,7 @@ const ImageUpload = ({ images = [], setImages, maxImages = 5 }) => {
 };
 
 // Admin Products Tab
-const AdminProductsTab = ({ products, setProducts, categories }) => {
+const AdminProductsTab = ({ products, setProducts, categories, showToast }) => {
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [productForm, setProductForm] = useState({
