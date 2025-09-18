@@ -1242,7 +1242,7 @@ const AdminProductsTab = ({ products, setProducts, categories, showToast }) => {
         featured: updatedProduct.featured
       });
       setProducts(products.map(p => p.id === product.id ? response.data : p));
-      alert(`Product ${updatedProduct.featured ? 'marked as featured' : 'unmarked as featured'}!`);
+      showToast(`Product ${updatedProduct.featured ? 'marked as featured' : 'unmarked as featured'}!`, 'success');
     } catch (error) {
       console.error('Error toggling featured:', error);
       let errorMessage = 'Unknown error occurred';
