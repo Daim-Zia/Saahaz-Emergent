@@ -1156,7 +1156,10 @@ const AdminCategoriesTab = ({ categories, setCategories }) => {
             <div>
               <ImageUpload 
                 images={categoryForm.image ? [categoryForm.image] : []} 
-                setImages={(images) => setCategoryForm({...categoryForm, image: images[0] || ''})}
+                setImages={(images) => {
+                  const imageArray = Array.isArray(images) ? images : [];
+                  setCategoryForm({...categoryForm, image: imageArray[0] || ''});
+                }}
                 maxImages={1}
               />
             </div>
