@@ -387,7 +387,7 @@ const ProductCard = ({ product }) => {
           className="w-full bg-orange-500 hover:bg-orange-600" 
           onClick={() => addToCart(product.id, 1)}
         >
-          <ShoppingCart className="mr-2 h-4 w-4" />
+          <ShoppingCartIcon className="mr-2 h-4 w-4" />
           Add to Cart
         </Button>
       </CardFooter>
