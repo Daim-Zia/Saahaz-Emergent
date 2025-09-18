@@ -917,22 +917,22 @@ const AdminDashboard = () => {
         console.log('AdminDashboard: Starting data fetch...');
         setLoading(true);
         
-        // Only fetch products and categories to avoid orders authentication issue
-        const [productsRes, categoriesRes] = await Promise.all([
+        // Fetch products, categories, and orders for admin
+        const [productsRes, categoriesRes, ordersRes] = await Promise.all([
           axios.get(`${API}/products`),
-          axios.get(`${API}/categories`)
+          axios.get(`${API}/categories`),
+          axios.get(`${API}/orders`)
         ]);
         
         console.log('AdminDashboard: Data fetched successfully:', {
           productsCount: productsRes.data?.length,
-          categoriesCount: categoriesRes.data?.length
+          categoriesCount: categoriesRes.data?.length,
+          ordersCount: ordersRes.data?.length
         });
         
         setProducts(productsRes.data);
         setCategories(categoriesRes.data);
-        
-        // Set orders to empty array for now
-        setOrders([]);
+        setOrders(ordersRes.data);
       } catch (error) {
         console.error('AdminDashboard: Error fetching admin data:', error);
         console.error('Error details:', {
