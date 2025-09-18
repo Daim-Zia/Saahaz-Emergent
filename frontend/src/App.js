@@ -738,18 +738,31 @@ function App() {
     <AppProvider>
       <div className="App">
         <BrowserRouter>
-          <Header 
-            onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            cartCount={0} // This will be updated with context
-          />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            {/* Add more routes as needed */}
-          </Routes>
+          <AppContent />
         </BrowserRouter>
       </div>
     </AppProvider>
   );
 }
+
+// App Content Component (to access context)
+const AppContent = () => {
+  const { cartCount } = useAppContext();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  return (
+    <>
+      <Header 
+        onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        cartCount={cartCount}
+      />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        {/* Add more routes as needed */}
+      </Routes>
+    </>
+  );
+};
 
 export default App;
