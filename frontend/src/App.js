@@ -15,7 +15,7 @@ import { Separator } from './components/ui/separator';
 
 // Import Lucide React icons
 import { 
-  ShoppingCart, 
+  ShoppingCart as ShoppingCartIcon, 
   User, 
   Search, 
   Menu, 
