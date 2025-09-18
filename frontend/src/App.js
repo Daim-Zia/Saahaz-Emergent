@@ -638,6 +638,111 @@ const AdminDashboard = () => {
   );
 };
 
+// Image Upload Component
+const ImageUpload = ({ images, setImages, maxImages = 5 }) => {
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageUpload = (event) => {
+    const files = Array.from(event.target.files);
+    
+    files.forEach(file => {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const newImage = e.target.result;
+          setImages(prev => [...prev.slice(0, maxImages - 1), newImage]);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  };
+
+  const removeImage = (index) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const addImageUrl = () => {
+    const url = prompt('Enter image URL:');
+    if (url && url.trim()) {
+      setImages(prev => [...prev, url.trim()]);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center space-x-2">
+        <label className="block text-sm font-medium">Product Images</label>
+        <span className="text-xs text-muted-foreground">({images.length}/{maxImages})</span>
+      </div>
+      
+      {/* Image Preview Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {images.map((image, index) => (
+          <div key={index} className="relative group">
+            <img
+              src={image}
+              alt={`Product ${index + 1}`}
+              className="w-full h-24 object-cover rounded border"
+            />
+            <button
+              type="button"
+              onClick={() => removeImage(index)}
+              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+        
+        {/* Add Image Placeholder */}
+        {images.length < maxImages && (
+          <div className="border-2 border-dashed border-gray-300 rounded p-4 flex flex-col items-center justify-center h-24 hover:border-orange-500 transition-colors">
+            <Plus className="h-6 w-6 text-gray-400 mb-1" />
+            <span className="text-xs text-gray-500">Add Image</span>
+          </div>
+        )}
+      </div>
+
+      {/* Upload Controls */}
+      <div className="flex gap-2">
+        <label className="cursor-pointer">
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImageUpload}
+            className="hidden"
+            disabled={images.length >= maxImages}
+          />
+          <Button 
+            type="button" 
+            variant="outline" 
+            size="sm"
+            disabled={images.length >= maxImages}
+            asChild
+          >
+            <span>Upload Images</span>
+          </Button>
+        </label>
+        
+        <Button 
+          type="button" 
+          variant="outline" 
+          size="sm"
+          onClick={addImageUrl}
+          disabled={images.length >= maxImages}
+        >
+          Add URL
+        </Button>
+      </div>
+      
+      <p className="text-xs text-muted-foreground">
+        You can upload images or add image URLs. Maximum {maxImages} images allowed.
+      </p>
+    </div>
+  );
+};
+
 // Admin Products Tab
 const AdminProductsTab = ({ products, setProducts, categories }) => {
   const [isAddingProduct, setIsAddingProduct] = useState(false);
