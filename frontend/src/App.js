@@ -1550,18 +1550,44 @@ const ProductDetails = () => {
 
 // Shopping Cart Component
 const ShoppingCart = () => {
-  const { cart, updateCartQuantity, removeFromCart, getCartTotal } = useAppContext();
+  const { cart, updateCartQuantity, removeFromCart } = useAppContext();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cartTotal, setCartTotal] = useState(0);
 
   useEffect(() => {
+    console.log('Cart in ShoppingCart component:', cart); // Debug log
+    
     const fetchCartProducts = async () => {
+      if (cart.length === 0) {
+        setProducts([]);
+        setLoading(false);
+        return;
+      }
+
       try {
-        const productPromises = cart.map(item =>
-          axios.get(`${API}/products/${item.product_id}`)
+        setLoading(true);
+        // Get unique product IDs
+        const uniqueProductIds = [...new Set(cart.map(item => item.product_id))];
+        
+        const productPromises = uniqueProductIds.map(productId =>
+          axios.get(`${API}/products/${productId}`)
         );
+        
         const responses = await Promise.all(productPromises);
-        setProducts(responses.map(response => response.data));
+        const fetchedProducts = responses.map(response => response.data);
+        setProducts(fetchedProducts);
+        
+        // Calculate total
+        let total = 0;
+        cart.forEach(cartItem => {
+          const product = fetchedProducts.find(p => p.id === cartItem.product_id);
+          if (product) {
+            total += product.price * cartItem.quantity;
+          }
+        });
+        setCartTotal(total);
+        
       } catch (error) {
         console.error('Error fetching cart products:', error);
       } finally {
@@ -1569,17 +1595,16 @@ const ShoppingCart = () => {
       }
     };
 
-    if (cart.length > 0) {
-      fetchCartProducts();
-    } else {
-      setLoading(false);
-    }
+    fetchCartProducts();
   }, [cart]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="loading-skeleton w-32 h-32 rounded-full mx-auto mb-4"></div>
+        <div className="text-center">
+          <div className="loading-skeleton w-32 h-8 rounded mx-auto mb-4"></div>
+          <p>Loading your cart...</p>
+        </div>
       </div>
     );
   }
@@ -1602,17 +1627,31 @@ const ShoppingCart = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
+        <h1 className="text-3xl font-bold mb-8">Shopping Cart ({cart.length} items)</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {cart.map((item, index) => {
               const product = products.find(p => p.id === item.product_id);
-              if (!product) return null;
+              if (!product) {
+                return (
+                  <Card key={`${item.product_id}-${index}`}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-4">
+                        <div className="loading-skeleton w-20 h-20 rounded"></div>
+                        <div className="flex-1">
+                          <div className="loading-skeleton w-32 h-4 rounded mb-2"></div>
+                          <div className="loading-skeleton w-24 h-4 rounded"></div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              }
 
               return (
-                <Card key={`${item.product_id}-${index}`}>
+                <Card key={`${item.product_id}-${item.size}-${item.color}-${index}`}>
                   <CardContent className="p-4">
                     <div className="flex items-center space-x-4">
                       <img
@@ -1633,7 +1672,7 @@ const ShoppingCart = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => updateCartQuantity(item.product_id, item.quantity - 1)}
+                          onClick={() => updateCartQuantity(item.product_id, item.quantity - 1, item.size, item.color)}
                         >
                           <Minus className="h-4 w-4" />
                         </Button>
@@ -1641,7 +1680,7 @@ const ShoppingCart = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => updateCartQuantity(item.product_id, item.quantity + 1)}
+                          onClick={() => updateCartQuantity(item.product_id, item.quantity + 1, item.size, item.color)}
                         >
                           <Plus className="h-4 w-4" />
                         </Button>
@@ -1652,7 +1691,7 @@ const ShoppingCart = () => {
                           variant="outline"
                           size="sm"
                           className="text-red-600 mt-2"
-                          onClick={() => removeFromCart(item.product_id)}
+                          onClick={() => removeFromCart(item.product_id, item.size, item.color)}
                         >
                           <X className="h-4 w-4" />
                         </Button>
@@ -1672,8 +1711,8 @@ const ShoppingCart = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span>PKR {getCartTotal().toLocaleString()}</span>
+                  <span>Subtotal ({cart.length} items)</span>
+                  <span>PKR {cartTotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Delivery</span>
@@ -1682,7 +1721,7 @@ const ShoppingCart = () => {
                 <Separator />
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>PKR {getCartTotal().toLocaleString()}</span>
+                  <span>PKR {cartTotal.toLocaleString()}</span>
                 </div>
                 <Button size="lg" className="w-full bg-orange-500 hover:bg-orange-600">
                   Proceed to Checkout
