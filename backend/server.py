@@ -169,7 +169,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         # Create user object (without password_hash)
         user_response = {k: v for k, v in user_doc.items() if k != 'password_hash'}
         return User(**user_response)
-    except jwt.PyJWTError:
+    except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
 # Routes
