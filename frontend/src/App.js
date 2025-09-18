@@ -3719,6 +3719,7 @@ const CheckoutPage = () => {
   const { cart, user, clearCart } = useAppContext();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [orderConfirmation, setOrderConfirmation] = useState(null); // For order confirmation
   const [orderForm, setOrderForm] = useState({
     delivery_address: '',
     phone: ''
