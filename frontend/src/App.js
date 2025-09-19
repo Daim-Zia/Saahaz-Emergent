@@ -3774,7 +3774,7 @@ const AboutPage = () => {
               <Card>
                 <CardContent className="p-6 text-center">
                   <h4 className="font-semibold mb-2">Address</h4>
-                  <p className="text-muted-foreground">Lahore, Pakistan</p>
+                  <p className="text-muted-foreground">Karachi, Pakistan</p>
                 </CardContent>
               </Card>
             </div>
