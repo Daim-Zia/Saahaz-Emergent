@@ -4327,7 +4327,7 @@ const Footer = () => {
             <h4 className="font-semibold mb-4">Contact Info</h4>
             <div className="text-gray-400 space-y-2">
               <p>Email: info@saahaz.com</p>
-              <p>Address: Lahore, Pakistan</p>
+              <p>Address: Karachi, Pakistan</p>
             </div>
           </div>
         </div>
