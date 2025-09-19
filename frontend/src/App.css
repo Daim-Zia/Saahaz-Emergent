@@ -1,4 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap');
+
+/* Logo Styles */
+.saahaz-logo {
+  transition: all 0.3s ease;
+}
+
+.saahaz-logo:hover {
+  transform: scale(1.02);
+}
+
+.saahaz-logo svg {
+  filter: drop-shadow(0 2px 4px rgba(249, 115, 22, 0.2));
+}
+
+.logo-text {
+  font-family: 'Playfair Display', serif;
+  letter-spacing: -0.5px;
+}
+
+.logo-tagline {
+  font-family: 'Inter', sans-serif;
+}
 
 /* Global Styles */
 * {
