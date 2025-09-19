@@ -264,26 +264,40 @@ const Header = ({ onMenuClick, cartCount }) => {
             <Button variant="ghost" size="sm" className="md:hidden mr-2" onClick={onMenuClick}>
               <Menu className="h-5 w-5" />
             </Button>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 saahaz-logo cursor-pointer" onClick={() => window.location.href = '/'}>
               {/* Geometric S Logo Icon */}
               <div className="relative w-10 h-10 flex items-center justify-center">
                 <svg viewBox="0 0 40 40" className="w-10 h-10">
                   <defs>
                     <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" style={{ stopColor: '#f97316', stopOpacity: 1 }} />
+                      <stop offset="50%" style={{ stopColor: '#fb923c', stopOpacity: 1 }} />
                       <stop offset="100%" style={{ stopColor: '#ea580c', stopOpacity: 1 }} />
                     </linearGradient>
+                    <linearGradient id="logoShadow" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style={{ stopColor: '#c2410c', stopOpacity: 0.3 }} />
+                      <stop offset="100%" style={{ stopColor: '#9a3412', stopOpacity: 0.4 }} />
+                    </linearGradient>
                   </defs>
-                  {/* Geometric S Shape */}
+                  
+                  {/* Shadow layer */}
+                  <path 
+                    d="M9 13 Q9 9 13 9 L29 9 Q33 9 33 13 Q33 17 29 17 L17 17 Q13 17 13 21 Q13 25 17 25 L29 25 Q33 25 33 29 Q33 33 29 33 L13 33 Q9 33 9 29"
+                    fill="url(#logoShadow)"
+                    opacity="0.3"
+                  />
+                  
+                  {/* Main S Shape */}
                   <path 
                     d="M8 12 Q8 8 12 8 L28 8 Q32 8 32 12 Q32 16 28 16 L16 16 Q12 16 12 20 Q12 24 16 24 L28 24 Q32 24 32 28 Q32 32 28 32 L12 32 Q8 32 8 28"
                     fill="url(#logoGradient)"
                     stroke="none"
                   />
-                  {/* Subtle shadow for depth */}
+                  
+                  {/* Highlight accent */}
                   <path 
-                    d="M9 13 Q9 9 13 9 L29 9 Q33 9 33 13 Q33 17 29 17 L17 17 Q13 17 13 21 Q13 25 17 25 L29 25 Q33 25 33 29 Q33 33 29 33 L13 33 Q9 33 9 29"
-                    fill="rgba(0,0,0,0.1)"
+                    d="M12 8 Q16 8 20 8 Q24 8 28 8 Q30 8 30 10 Q30 12 28 12 L20 12"
+                    fill="rgba(255,255,255,0.3)"
                     stroke="none"
                   />
                 </svg>
@@ -291,12 +305,12 @@ const Header = ({ onMenuClick, cartCount }) => {
               
               {/* Brand Text */}
               <div className="flex flex-col">
-                <h1 className="text-2xl font-bold leading-none">
-                  <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold leading-none logo-text">
+                  <span className="bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 bg-clip-text text-transparent">
                     SAAHAZ
                   </span>
                 </h1>
-                <span className="text-xs text-orange-600 font-medium tracking-wider uppercase">
+                <span className="text-xs text-orange-600 font-medium tracking-wider uppercase logo-tagline opacity-75">
                   Premium Fashion
                 </span>
               </div>
