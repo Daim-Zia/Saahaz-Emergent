@@ -4280,7 +4280,25 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-xl font-bold mb-4 text-orange-400">Saahaz.com</h3>
+            <div className="flex items-center space-x-2 mb-4">
+              {/* Small version of geometric S logo for footer */}
+              <div className="w-8 h-8">
+                <svg viewBox="0 0 40 40" className="w-8 h-8">
+                  <defs>
+                    <linearGradient id="footerLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style={{ stopColor: '#fb923c', stopOpacity: 1 }} />
+                      <stop offset="100%" style={{ stopColor: '#ea580c', stopOpacity: 1 }} />
+                    </linearGradient>
+                  </defs>
+                  <path 
+                    d="M8 12 Q8 8 12 8 L28 8 Q32 8 32 12 Q32 16 28 16 L16 16 Q12 16 12 20 Q12 24 16 24 L28 24 Q32 24 32 28 Q32 32 28 32 L12 32 Q8 32 8 28"
+                    fill="url(#footerLogoGradient)"
+                    stroke="none"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-orange-400 logo-text">SAAHAZ</h3>
+            </div>
             <p className="text-gray-400 mb-4">
               Your premium destination for contemporary fashion in Pakistan.
             </p>
