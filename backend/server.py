@@ -108,7 +108,9 @@ class CartItem(BaseModel):
 
 class Order(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    user_id: str
+    user_id: Optional[str] = None  # Allow guest orders without user_id
+    customer_name: Optional[str] = None  # For guest orders
+    customer_email: Optional[str] = None  # For guest orders
     items: List[CartItem]
     subtotal: float
     delivery_charge: float
