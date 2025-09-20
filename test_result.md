@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Revert Saahaz.com application to original orange theme completely, removing all purple/pink theme remnants and ensuring consistent orange theme across all components, navbars, and buttons"
+user_problem_statement: "Test the complete guest checkout functionality and UI improvements on https://clothing-shop-15.preview.emergentagent.com including guest checkout flow, UI improvements verification (Google auth button removal, toast notifications, phone placeholder removal, new logo), and admin panel verification"
 
 frontend:
   - task: "App.css Orange Theme Restoration"
