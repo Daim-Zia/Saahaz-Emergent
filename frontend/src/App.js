@@ -3795,12 +3795,7 @@ const CheckoutPage = () => {
   }, [cart]);
 
   const handlePlaceOrder = async () => {
-    if (!user) {
-      showToast('Please login to place an order', 'warning');
-      return;
-    }
-
-    if (!orderForm.delivery_address || !orderForm.phone) {
+    if (!orderForm.delivery_address || !orderForm.phone || !orderForm.customer_name || !orderForm.customer_email) {
       showToast('Please fill in all required fields', 'warning');
       return;
     }
