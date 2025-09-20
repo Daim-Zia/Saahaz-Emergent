@@ -3981,27 +3981,6 @@ const CheckoutPage = () => {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card>
-          <CardContent className="p-8 text-center">
-            <h2 className="text-2xl font-bold mb-4">Login Required</h2>
-            <p className="mb-4">Please login to proceed with checkout.</p>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button>Login</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <AuthDialog />
-              </DialogContent>
-            </Dialog>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       {/* Toast Notification */}
