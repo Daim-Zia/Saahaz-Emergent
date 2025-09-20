@@ -105,12 +105,48 @@
 user_problem_statement: "Test the complete guest checkout functionality and UI improvements on https://clothing-shop-15.preview.emergentagent.com including guest checkout flow, UI improvements verification (Google auth button removal, toast notifications, phone placeholder removal, new logo), and admin panel verification"
 
 frontend:
+  - task: "Guest Checkout Flow Test"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to test complete guest checkout flow: navigate to homepage, add Classic Cotton Shirt to cart, go to cart page, proceed to checkout as guest, verify checkout form shows Customer Name/Email/Phone/Address fields, fill guest details, select delivery option, place order without authentication, verify order confirmation page displays"
+
+  - task: "UI Improvements Verification"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify UI improvements: Google auth button removed from login/register dialog, Add to Cart uses toast notifications (not old popup), phone number placeholder removed from checkout form, new logo displaying correctly with geometric S icon"
+
+  - task: "Admin Panel Verification"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to verify admin panel: login with m.admin@saahaz.com / SaahazAdmin2025!, verify logout button present in admin header, check Orders tab shows guest orders, verify admin order status updates use toast notifications (not alerts)"
+
   - task: "App.css Orange Theme Restoration"
     implemented: true
     working: true
     file: "/app/frontend/src/App.css"
     stuck_count: 0
-    priority: "high"
+    priority: "medium"
     needs_retesting: false
     status_history:
       - working: true
@@ -122,7 +158,7 @@ frontend:
     working: true
     file: "/app/frontend/src/index.css"
     stuck_count: 0
-    priority: "high"
+    priority: "medium"
     needs_retesting: false
     status_history:
       - working: true
@@ -134,7 +170,7 @@ frontend:
     working: true
     file: "/app/frontend/src/App.js"
     stuck_count: 0
-    priority: "high"
+    priority: "medium"
     needs_retesting: false
     status_history:
       - working: true
@@ -146,7 +182,7 @@ frontend:
     working: true
     file: "/app/frontend/src/App.js"
     stuck_count: 0
-    priority: "high"
+    priority: "medium"
     needs_retesting: false
     status_history:
       - working: true
@@ -158,7 +194,7 @@ frontend:
     working: true
     file: "/app/frontend/src/App.js"
     stuck_count: 0
-    priority: "high"
+    priority: "medium"
     needs_retesting: false
     status_history:
       - working: true
@@ -170,7 +206,7 @@ frontend:
     working: true
     file: "/app/frontend/src/App.js"
     stuck_count: 0
-    priority: "high"
+    priority: "medium"
     needs_retesting: false
     status_history:
       - working: true
@@ -182,7 +218,7 @@ frontend:
     working: true
     file: "/app/frontend/src/App.js"
     stuck_count: 0
-    priority: "high"
+    priority: "medium"
     needs_retesting: false
     status_history:
       - working: true
@@ -194,7 +230,7 @@ frontend:
     working: true
     file: "/app/frontend/src/App.js"
     stuck_count: 0
-    priority: "high"
+    priority: "medium"
     needs_retesting: false
     status_history:
       - working: true
@@ -206,7 +242,7 @@ frontend:
     working: true
     file: "/app/frontend/src/App.js"
     stuck_count: 0
-    priority: "high"
+    priority: "medium"
     needs_retesting: false
     status_history:
       - working: true
