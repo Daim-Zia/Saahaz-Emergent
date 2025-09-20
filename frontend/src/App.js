@@ -3897,6 +3897,14 @@ const CheckoutPage = () => {
                   <p className="font-semibold">{orderConfirmation.orderDate}</p>
                 </div>
                 <div>
+                  <span className="text-gray-600">Customer:</span>
+                  <p className="font-semibold">{orderConfirmation.customerName}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Email:</span>
+                  <p className="font-semibold">{orderConfirmation.customerEmail}</p>
+                </div>
+                <div>
                   <span className="text-gray-600">Phone:</span>
                   <p className="font-semibold">{orderConfirmation.phone}</p>
                 </div>
