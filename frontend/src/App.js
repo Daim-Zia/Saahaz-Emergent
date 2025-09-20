@@ -3812,6 +3812,8 @@ const CheckoutPage = () => {
     try {
       const deliveryCharge = getDeliveryCharge();
       const orderData = {
+        customer_name: orderForm.customer_name,
+        customer_email: orderForm.customer_email,
         items: cart.map(item => ({
           product_id: item.product_id,
           quantity: item.quantity,
