@@ -176,6 +176,28 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
+async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)):
+    """Get current user if authenticated, otherwise return None for guest orders"""
+    if not credentials:
+        return None
+    
+    try:
+        token = credentials.credentials
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            return None
+        
+        user_doc = await db[users_collection].find_one({"id": user_id})
+        if user_doc is None:
+            return None
+        
+        # Create user object (without password_hash)
+        user_response = {k: v for k, v in user_doc.items() if k != 'password_hash'}
+        return User(**user_response)
+    except JWTError:
+        return None
+
 # Routes
 @api_router.get("/")
 async def root():
