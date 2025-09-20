@@ -4054,6 +4054,30 @@ const CheckoutPage = () => {
                 <CardTitle>Delivery Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Customer Information for Guest Checkout */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Customer Name *</label>
+                    <Input
+                      type="text"
+                      placeholder="Enter your full name"
+                      value={orderForm.customer_name}
+                      onChange={(e) => setOrderForm({...orderForm, customer_name: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Email Address *</label>
+                    <Input
+                      type="email"
+                      placeholder="Enter your email address"
+                      value={orderForm.customer_email}
+                      onChange={(e) => setOrderForm({...orderForm, customer_email: e.target.value})}
+                      required
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium mb-1">Full Address *</label>
                   <textarea
