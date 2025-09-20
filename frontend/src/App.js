@@ -1817,7 +1817,10 @@ const AdminOrdersTab = ({ orders, setOrders, showToast }) => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Orders Management</h2>
+        <div>
+          <h2 className="text-2xl font-bold">Orders Management</h2>
+          <p className="text-sm text-muted-foreground">Sorted by newest first</p>
+        </div>
         <div className="flex items-center space-x-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
