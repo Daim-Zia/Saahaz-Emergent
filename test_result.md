@@ -257,7 +257,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Complete orange theme restoration verification"
+    - "Guest Checkout Flow Test"
+    - "UI Improvements Verification"
+    - "Admin Panel Verification"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
