@@ -1879,7 +1879,7 @@ const AdminOrdersTab = ({ orders, setOrders, showToast }) => {
                 {filteredOrders.map(order => (
                   <tr key={order.id} className="border-b">
                     <td className="p-4 font-mono text-sm">{order.id.slice(0, 8)}...</td>
-                    <td className="p-4">{order.user_id?.slice(0, 8)}...</td>
+                    <td className="p-4">{order.customer_name || (order.user_id ? order.user_id.slice(0, 8) + '...' : 'Guest')}</td>
                     <td className="p-4">{order.items.length} items</td>
                     <td className="p-4 font-semibold">PKR {order.total_amount.toLocaleString()}</td>
                     <td className="p-4">
