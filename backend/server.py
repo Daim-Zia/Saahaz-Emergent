@@ -138,6 +138,8 @@ class GoogleUserData(BaseModel):
     session_token: str
 
 class OrderCreate(BaseModel):
+    customer_name: Optional[str] = None  # For guest orders
+    customer_email: Optional[str] = None  # For guest orders
     items: List[CartItem]
     delivery_address: str
     phone: str
