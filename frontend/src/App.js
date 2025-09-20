@@ -1766,7 +1766,8 @@ const AdminOrdersTab = ({ orders, setOrders, showToast }) => {
             
             <div class="info-box">
               <h3>Customer Information</h3>
-              <p><strong>Customer ID:</strong> ${order.user_id.slice(0, 8)}...</p>
+              <p><strong>Customer:</strong> ${order.customer_name || (order.user_id ? order.user_id.slice(0, 8) + '...' : 'Guest Customer')}</p>
+              <p><strong>Email:</strong> ${order.customer_email || 'N/A'}</p>
               <p><strong>Phone:</strong> ${order.phone}</p>
               <p><strong>Delivery Address:</strong><br>${order.delivery_address}</p>
             </div>
