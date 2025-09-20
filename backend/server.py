@@ -348,7 +348,7 @@ async def delete_product(product_id: str, current_user: User = Depends(get_curre
 
 # Order routes
 @api_router.post("/orders", response_model=Order)
-async def create_order(order_data: OrderCreate, current_user: User = Depends(get_current_user)):
+async def create_order(order_data: OrderCreate, current_user: Optional[User] = Depends(get_current_user_optional)):
     # Calculate subtotal from items
     subtotal = 0
     for item in order_data.items:
@@ -362,7 +362,13 @@ async def create_order(order_data: OrderCreate, current_user: User = Depends(get
     total_amount = order_data.total if order_data.total else (subtotal + delivery_charge)
     
     order_dict = order_data.dict()
-    order_dict['user_id'] = current_user.id
+    
+    # Handle both authenticated and guest orders
+    if current_user:
+        order_dict['user_id'] = current_user.id
+    else:
+        order_dict['user_id'] = None  # Guest order
+        
     order_dict['subtotal'] = subtotal
     order_dict['delivery_charge'] = delivery_charge
     order_dict['total_amount'] = total_amount
