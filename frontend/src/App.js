@@ -3699,6 +3699,8 @@ const CheckoutPage = () => {
   const [loading, setLoading] = useState(true);
   const [orderConfirmation, setOrderConfirmation] = useState(null); // For order confirmation
   const [orderForm, setOrderForm] = useState({
+    customer_name: '',
+    customer_email: '',
     delivery_address: '',
     phone: ''
   });
