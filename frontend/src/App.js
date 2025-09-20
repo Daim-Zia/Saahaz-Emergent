@@ -1691,12 +1691,17 @@ const AdminOrdersTab = ({ orders, setOrders, showToast }) => {
   const [filteredOrders, setFilteredOrders] = useState(orders);
 
   useEffect(() => {
+    // Sort orders by newest first
+    const sortedOrders = [...orders].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    
     if (searchQuery.trim() === '') {
-      setFilteredOrders(orders);
+      setFilteredOrders(sortedOrders);
     } else {
-      const filtered = orders.filter(order => 
+      const filtered = sortedOrders.filter(order => 
         order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.user_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (order.user_id && order.user_id.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (order.customer_name && order.customer_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (order.customer_email && order.customer_email.toLowerCase().includes(searchQuery.toLowerCase())) ||
         order.phone.includes(searchQuery) ||
         order.delivery_address.toLowerCase().includes(searchQuery.toLowerCase())
       );
