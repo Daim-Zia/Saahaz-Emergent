@@ -481,63 +481,6 @@ const AuthDialog = () => {
   const { login, register } = useAppContext();
   const { toast, showToast, hideToast } = useToast();
 
-  // Handle Google OAuth session processing
-  useEffect(() => {
-    const processGoogleSession = async () => {
-      // Check for session_id in URL fragment
-      const hash = window.location.hash.substring(1);
-      const params = new URLSearchParams(hash);
-      const sessionId = params.get('session_id');
-      
-      if (sessionId) {
-        try {
-          console.log('Processing Google session:', sessionId);
-          
-          // Call backend to process session
-          const response = await axios.post(`${API}/auth/google/session-data`, {}, {
-            headers: {
-              'X-Session-ID': sessionId
-            }
-          });
-          
-          console.log('Google auth response:', response.data);
-          
-          // Update user context with Google user data
-          const userData = {
-            id: response.data.id,
-            email: response.data.email,
-            name: response.data.name,
-            is_admin: false // Google users are not admin by default
-          };
-          
-          // Set user in context (this should trigger re-render)
-          login(userData, response.data.session_token);
-          
-          // Clean URL fragment
-          window.history.replaceState({}, document.title, window.location.pathname);
-          
-          showToast(`Welcome ${response.data.name}! Successfully signed in with Google.`, 'success');
-          
-        } catch (error) {
-          console.error('Google session processing error:', error);
-          showToast('Google sign-in failed. Please try again.', 'error');
-          
-          // Clean URL fragment even on error
-          window.history.replaceState({}, document.title, window.location.pathname);
-        }
-      }
-    };
-    
-    processGoogleSession();
-  }, []);
-
-  const handleGoogleSignIn = () => {
-    // Redirect to Emergent Auth with the main app as redirect URL
-    const redirectUrl = `${window.location.origin}`;
-    const authUrl = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
-    window.location.href = authUrl;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
