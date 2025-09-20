@@ -1969,7 +1969,7 @@ const AdminOrdersTab = ({ orders, setOrders, showToast }) => {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Customer ID:</span>
-                      <span className="font-mono text-sm">{selectedOrder.user_id.slice(0, 8)}...</span>
+                      <span className="font-mono text-sm">{selectedOrder.customer_name || (selectedOrder.user_id ? selectedOrder.user_id.slice(0, 8) + '...' : 'Guest Customer')}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Phone:</span>
