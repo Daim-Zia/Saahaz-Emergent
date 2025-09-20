@@ -3835,6 +3835,8 @@ const CheckoutPage = () => {
       setOrderConfirmation({
         orderId: response.data.id,
         shortId: orderId,
+        customerName: orderForm.customer_name,
+        customerEmail: orderForm.customer_email,
         items: cart.map(item => {
           const product = products.find(p => p.id === item.product_id);
           return {
