@@ -520,6 +520,12 @@ async def create_order(order_data: OrderCreate, current_user: Optional[User] = D
     
     order = Order(**order_dict)
     await db[orders_collection].insert_one(order.dict())
+    
+    # Send order confirmation email
+    if order_data.customer_email:
+        customer_name = order_data.customer_name or "Valued Customer"
+        send_order_confirmation_email(order_data.customer_email, customer_name, order.dict())
+    
     return order
 
 @api_router.post("/auth/google/session-data", response_model=GoogleUserData)
