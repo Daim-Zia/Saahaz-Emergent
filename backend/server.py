@@ -149,7 +149,144 @@ class OrderCreate(BaseModel):
     subtotal: Optional[float] = 0
     total: Optional[float] = 0
 
-# Helper functions
+# Email configuration
+EMAIL_USER = os.environ.get('EMAIL_USER')
+EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+
+# Email helper functions
+def send_order_confirmation_email(customer_email: str, customer_name: str, order_data: dict):
+    """Send order confirmation email to customer"""
+    try:
+        yag = yagmail.SMTP(EMAIL_USER, EMAIL_PASSWORD)
+        
+        subject = f"Order Confirmation - Saahaz.com (Order #{order_data['id'][:8]})"
+        
+        body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #f97316; margin-bottom: 5px;">SAAHAZ</h1>
+                    <p style="color: #666; margin: 0;">Premium Fashion</p>
+                </div>
+                
+                <h2 style="color: #f97316;">Order Confirmation</h2>
+                <p>Dear {customer_name},</p>
+                <p>Thank you for your order! We're excited to get your items to you.</p>
+                
+                <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="color: #333; margin-top: 0;">Order Details</h3>
+                    <p><strong>Order ID:</strong> #{order_data['id'][:8]}</p>
+                    <p><strong>Order Date:</strong> {order_data.get('created_at', 'N/A')}</p>
+                    <p><strong>Payment Method:</strong> Cash on Delivery (COD)</p>
+                    <p><strong>Delivery Address:</strong><br>{order_data.get('delivery_address', 'N/A')}</p>
+                </div>
+                
+                <div style="background: #fff; border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="color: #333; margin-top: 0;">Items Ordered</h3>
+                    {_format_order_items(order_data.get('items', []))}
+                </div>
+                
+                <div style="background: #f97316; color: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="margin-top: 0; color: white;">Order Summary</h3>
+                    <p style="margin: 5px 0;"><strong>Subtotal: PKR {order_data.get('subtotal', 0):,.0f}</strong></p>
+                    <p style="margin: 5px 0;"><strong>Delivery: PKR {order_data.get('delivery_charge', 0):,.0f}</strong></p>
+                    <p style="margin: 5px 0; font-size: 18px;"><strong>Total: PKR {order_data.get('total_amount', 0):,.0f}</strong></p>
+                </div>
+                
+                <p>We'll start processing your order right away and will send you another email when your order ships.</p>
+                <p>For any questions, reply to this email or contact us at Saahazstore@gmail.com</p>
+                
+                <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                    <p style="color: #666; font-size: 14px;">
+                        © 2025 Saahaz.com - Premium Fashion<br>
+                        Karachi, Pakistan
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        yag.send(to=customer_email, subject=subject, contents=body)
+        print(f"✅ Order confirmation email sent to {customer_email}")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Failed to send email to {customer_email}: {str(e)}")
+        return False
+
+def send_order_status_update_email(customer_email: str, customer_name: str, order_data: dict, new_status: str):
+    """Send order status update email to customer"""
+    try:
+        yag = yagmail.SMTP(EMAIL_USER, EMAIL_PASSWORD)
+        
+        status_messages = {
+            'confirmed': 'Your order has been confirmed and is being prepared.',
+            'shipped': 'Great news! Your order has been shipped and is on its way.',
+            'delivered': 'Your order has been delivered. Thank you for shopping with Saahaz!',
+            'cancelled': 'Your order has been cancelled. If you have questions, please contact us.'
+        }
+        
+        subject = f"Order Update - Saahaz.com (Order #{order_data['id'][:8]}) - {new_status.title()}"
+        
+        body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #f97316; margin-bottom: 5px;">SAAHAZ</h1>
+                    <p style="color: #666; margin: 0;">Premium Fashion</p>
+                </div>
+                
+                <h2 style="color: #f97316;">Order Status Update</h2>
+                <p>Dear {customer_name},</p>
+                <p>{status_messages.get(new_status, f'Your order status has been updated to {new_status}.')}</p>
+                
+                <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="color: #333; margin-top: 0;">Order Information</h3>
+                    <p><strong>Order ID:</strong> #{order_data['id'][:8]}</p>
+                    <p><strong>Status:</strong> <span style="color: #f97316; font-weight: bold;">{new_status.title()}</span></p>
+                    <p><strong>Total Amount:</strong> PKR {order_data.get('total_amount', 0):,.0f}</p>
+                </div>
+                
+                <p>For any questions about your order, please contact us at Saahazstore@gmail.com</p>
+                
+                <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                    <p style="color: #666; font-size: 14px;">
+                        © 2025 Saahaz.com - Premium Fashion<br>
+                        Karachi, Pakistan
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        yag.send(to=customer_email, subject=subject, contents=body)
+        print(f"✅ Order status update email sent to {customer_email}")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Failed to send status update email to {customer_email}: {str(e)}")
+        return False
+
+def _format_order_items(items: list) -> str:
+    """Helper function to format order items for email"""
+    if not items:
+        return "<p>No items found</p>"
+    
+    items_html = ""
+    for item in items:
+        items_html += f"""
+        <div style="border-bottom: 1px solid #e5e7eb; padding: 10px 0;">
+            <p style="margin: 5px 0;"><strong>Product ID:</strong> {item.get('product_id', 'N/A')[:8]}...</p>
+            <p style="margin: 5px 0;"><strong>Quantity:</strong> {item.get('quantity', 1)}</p>
+            <p style="margin: 5px 0;"><strong>Size:</strong> {item.get('size', 'N/A')}</p>
+            <p style="margin: 5px 0;"><strong>Color:</strong> {item.get('color', 'N/A')}</p>
+        </div>
+        """
+    return items_html
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
