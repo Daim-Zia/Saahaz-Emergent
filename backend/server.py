@@ -15,6 +15,7 @@ import jwt
 from jwt import PyJWTError as JWTError
 from passlib.context import CryptContext
 import aiohttp
+import yagmail  # Email sending library
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
