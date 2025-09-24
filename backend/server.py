@@ -679,6 +679,11 @@ async def update_order_status(order_id: str, status: str, current_user: User = D
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Admin access required")
     
+    # Get order details before updating for email
+    order = await db[orders_collection].find_one({"id": order_id})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
     result = await db[orders_collection].update_one(
         {"id": order_id}, 
         {"$set": {"status": status, "updated_at": datetime.now(timezone.utc)}}
@@ -686,6 +691,11 @@ async def update_order_status(order_id: str, status: str, current_user: User = D
     
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Order not found")
+    
+    # Send status update email if customer email is available
+    if order.get('customer_email'):
+        customer_name = order.get('customer_name') or "Valued Customer"
+        send_order_status_update_email(order['customer_email'], customer_name, order, status)
     
     return {"message": "Order status updated successfully"}
 
