@@ -699,6 +699,27 @@ async def update_order_status(order_id: str, status: str, current_user: User = D
     
     return {"message": "Order status updated successfully"}
 
+@api_router.delete("/orders/{order_id}")
+async def delete_order(order_id: str, current_user: User = Depends(get_current_user)):
+    """Delete an order (admin only)"""
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    result = await db[orders_collection].delete_one({"id": order_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    return {"message": "Order deleted successfully"}
+
+@api_router.delete("/orders")
+async def clear_all_orders(current_user: User = Depends(get_current_user)):
+    """Clear all orders (admin only - for database cleanup)"""
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    result = await db[orders_collection].delete_many({})
+    return {"message": f"Deleted {result.deleted_count} orders successfully"}
+
 # User profile routes
 @api_router.get("/profile", response_model=User)
 async def get_profile(current_user: User = Depends(get_current_user)):
