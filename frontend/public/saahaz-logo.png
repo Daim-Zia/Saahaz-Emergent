@@ -1,0 +1,30 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#fb923c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ea580c;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" fill="white"/>
+  
+  <!-- Geometric S Shape - Large -->
+  <path 
+    d="M100 150 Q100 100 150 100 L350 100 Q400 100 400 150 Q400 200 350 200 L200 200 Q150 200 150 250 Q150 300 200 300 L350 300 Q400 300 400 350 Q400 400 350 400 L150 400 Q100 400 100 350"
+    fill="url(#logoGradient)"
+    stroke="none"
+  />
+  
+  <!-- Highlight accent -->
+  <path 
+    d="M150 100 Q200 100 250 100 Q300 100 350 100 Q375 100 375 125 Q375 150 350 150 L250 150"
+    fill="rgba(255,255,255,0.3)"
+    stroke="none"
+  />
+  
+  <!-- Brand text -->
+  <text x="256" y="460" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#333">SAAHAZ</text>
+  <text x="256" y="485" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#666">Premium Fashion</text>
+</svg>
