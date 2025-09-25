@@ -1,0 +1,26 @@
+<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#fb923c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ea580c;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- White background circle -->
+  <circle cx="20" cy="20" r="20" fill="white"/>
+  
+  <!-- Geometric S Shape -->
+  <path 
+    d="M8 12 Q8 8 12 8 L28 8 Q32 8 32 12 Q32 16 28 16 L16 16 Q12 16 12 20 Q12 24 16 24 L28 24 Q32 24 32 28 Q32 32 28 32 L12 32 Q8 32 8 28"
+    fill="url(#logoGradient)"
+    stroke="none"
+  />
+  
+  <!-- Highlight accent -->
+  <path 
+    d="M12 8 Q16 8 20 8 Q24 8 28 8 Q30 8 30 10 Q30 12 28 12 L20 12"
+    fill="rgba(255,255,255,0.3)"
+    stroke="none"
+  />
+</svg>
