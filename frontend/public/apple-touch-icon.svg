@@ -1,0 +1,30 @@
+<svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#fb923c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ea580c;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- White background with subtle shadow -->
+  <circle cx="96" cy="96" r="96" fill="white"/>
+  <circle cx="96" cy="96" r="90" fill="#f9f9f9"/>
+  
+  <!-- Scaled Geometric S Shape -->
+  <path 
+    d="M40 58 Q40 38 58 38 L134 38 Q154 38 154 58 Q154 78 134 78 L78 78 Q58 78 58 98 Q58 118 78 118 L134 118 Q154 118 154 138 Q154 158 134 158 L58 158 Q40 158 40 138"
+    fill="url(#logoGradient)"
+    stroke="none"
+  />
+  
+  <!-- Highlight accent -->
+  <path 
+    d="M58 38 Q78 38 98 38 Q118 38 134 38 Q146 38 146 50 Q146 58 134 58 L98 58"
+    fill="rgba(255,255,255,0.4)"
+    stroke="none"
+  />
+  
+  <!-- Small text below -->
+  <text x="96" y="175" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#666">SAAHAZ</text>
+</svg>
