@@ -1,0 +1,30 @@
+{
+  "short_name": "Saahaz",
+  "name": "Saahaz.com - Premium Fashion Pakistan",
+  "description": "Premium Pakistani fashion destination. Shop contemporary clothing, shirts, pants, and accessories with cash on delivery.",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "apple-touch-icon.svg", 
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "saahaz-logo.png",
+      "sizes": "512x512", 
+      "type": "image/svg+xml"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#f97316",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["shopping", "lifestyle", "fashion"]
+}
