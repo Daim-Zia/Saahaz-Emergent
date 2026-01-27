@@ -619,24 +619,32 @@ const HeroSection = () => {
         </p>
         const navigate = useNavigate();
         
-        <div className="flex flex-col sm:flex-row gap-6 justify-center">
-          <Button 
-            size="lg" 
-            className="luxury-button text-lg px-10 py-4 h-auto" 
-            onClick={() => navigate("/products")}
-          >
-            Explore Collection
-            <ArrowRight className="ml-3 h-6 w-6" />
-          </Button>
-        
-          <Button 
-            size="lg" 
-            className="luxury-button-outline text-lg px-10 py-4 h-auto"
-            onClick={() => navigate("/categories")}
-          >
-            Shop Categories
-          </Button>
-        </div>
+      import { useNavigate } from "react-router-dom";
+      
+      const HeroSection = () => {
+        const navigate = useNavigate();
+      
+        return (
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <Button
+              size="lg"
+              className="luxury-button text-lg px-10 py-4 h-auto"
+              onClick={() => navigate("/products")}
+            >
+              Explore Collection
+            </Button>
+      
+            <Button
+              size="lg"
+              className="luxury-button-outline text-lg px-10 py-4 h-auto"
+              onClick={() => navigate("/categories")}
+            >
+              Shop Categories
+            </Button>
+          </div>
+        );
+      };
+
 
         
         {/* Luxury indicators */}
