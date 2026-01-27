@@ -1,15 +1,12 @@
-import React from "react";
 import {
   BrowserRouter,
   Routes,
   Route,
-  Navigate,
   Link,
   useLocation,
   useNavigate,
   useParams
 } from "react-router-dom";
-
 import axios from "axios";
 import "./App.css";
 
@@ -4675,11 +4672,11 @@ const AppContent = () => {
 
 function App() {
   return (
-    <AppProvider>
-      <div className="App">
+    <BrowserRouter>
+      <AppProvider>
         <AppContent />
-      </div>
-    </AppProvider>
+      </AppProvider>
+    </BrowserRouter>
   );
 }
 
