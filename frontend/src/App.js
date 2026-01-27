@@ -4613,4 +4613,14 @@ const AppContent = () => {
   );
 };
 
+function App() {
+  return (
+    <AppProvider>
+      <div className="App">
+        <AppContent />
+      </div>
+    </AppProvider>
+  );
+}
+
 export default App;
