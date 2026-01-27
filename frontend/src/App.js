@@ -4569,16 +4569,14 @@ const AppProvider = ({ children }) => {
 function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  return (
-    <AppProvider>
-      <div className="App">
-        <BrowserRouter>
-          <AppContent />
-        </BrowserRouter>
-      </div>
-    </AppProvider>
-  );
-}
+return (
+  <AppProvider>
+    <div className="App">
+      <AppContent />
+    </div>
+  </AppProvider>
+);
+
 
 // App Content Component (to access context)
 const AppContent = () => {
