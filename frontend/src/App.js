@@ -317,13 +317,37 @@ const Header = ({ onMenuClick, cartCount }) => {
             </div>
           </div>
 
-          {/* Navigation - Desktop */}
-          <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
-            <a href="/" className="transition-colors hover:text-orange-500">Home</a>
-            <a href="/products" className="transition-colors hover:text-orange-500">Products</a>
-            <a href="/categories" className="transition-colors hover:text-orange-500">Categories</a>
-            <a href="/about" className="transition-colors hover:text-orange-500">About</a>
-          </nav>
+{/* Navigation - Desktop */}
+<nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
+  <Link 
+    to="/" 
+    className="transition-colors hover:text-orange-500"
+  >
+    Home
+  </Link>
+
+  <Link 
+    to="/products" 
+    className="transition-colors hover:text-orange-500"
+  >
+    Products
+  </Link>
+
+  <Link 
+    to="/categories" 
+    className="transition-colors hover:text-orange-500"
+  >
+    Categories
+  </Link>
+
+  <Link 
+    to="/about" 
+    className="transition-colors hover:text-orange-500"
+  >
+    About
+  </Link>
+</nav>
+
 
           {/* Actions */}
           <div className="flex items-center space-x-4">
