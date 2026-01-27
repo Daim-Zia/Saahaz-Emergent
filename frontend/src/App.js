@@ -1,19 +1,28 @@
-import { Link } from "react-router-dom";
 import React from "react";
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
-import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
-import axios from 'axios';
-import './App.css';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Link,
+  useLocation,
+  useNavigate,
+  useParams
+} from "react-router-dom";
 
-// Import Shadcn components
-import { Button } from './components/ui/button';
-import { Input } from './components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './components/ui/card';
-import { Badge } from './components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
-import { Avatar, AvatarFallback, AvatarImage } from './components/ui/avatar';
-import { Separator } from './components/ui/separator';
+import axios from "axios";
+import "./App.css";
+
+// Shadcn UI
+import { Button } from "./components/ui/button";
+import { Input } from "./components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./components/ui/card";
+import { Badge } from "./components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "./components/ui/avatar";
+import { Separator } from "./components/ui/separator";
+
 
 // Import Lucide React icons
 import { 
