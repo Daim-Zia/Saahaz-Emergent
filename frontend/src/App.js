@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -616,23 +617,27 @@ const HeroSection = () => {
           Discover premium couture that embodies sophistication and elegance. 
           Where luxury meets contemporary design in Pakistan's finest fashion destination.
         </p>
+        const navigate = useNavigate();
+        
         <div className="flex flex-col sm:flex-row gap-6 justify-center">
           <Button 
             size="lg" 
             className="luxury-button text-lg px-10 py-4 h-auto" 
-            onClick={() => window.location.href = '/products'}
+            onClick={() => navigate("/products")}
           >
             Explore Collection
             <ArrowRight className="ml-3 h-6 w-6" />
           </Button>
+        
           <Button 
             size="lg" 
             className="luxury-button-outline text-lg px-10 py-4 h-auto"
-            onClick={() => window.location.href = '/categories'}
+            onClick={() => navigate("/categories")}
           >
             Shop Categories
           </Button>
         </div>
+
         
         {/* Luxury indicators */}
         <div className="flex justify-center items-center space-x-8 mt-12 text-sm uppercase tracking-widest text-gray-300">
@@ -802,41 +807,43 @@ const CategoriesSection = ({ categories }) => {
   );
 };
 
-// Featured Products Section
-const FeaturedProductsSection = ({ products }) => {
-  console.log('FeaturedProductsSection received products:', products);
-  console.log('Products length:', products ? products.length : 'undefined');
-  
-  const featuredProducts = products.filter(product => product.featured);
-  console.log('Filtered featured products:', featuredProducts);
-  console.log('Featured products count:', featuredProducts.length);
+      // Featured Products Section
+      const FeaturedProductsSection = ({ products }) => {
+        const navigate = useNavigate();
+      
+        const featuredProducts = products.filter(product => product.featured);
+      
+        return (
+          <section className="py-16">
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured Products</h2>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Handpicked favorites that define contemporary fashion
+                </p>
+              </div>
+      
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {featuredProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+      
+              <div className="text-center mt-12">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate("/products")}
+                >
+                  View All Products
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+          </section>
+        );
+      };
 
-  return (
-    <section className="py-16">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured Products</h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Handpicked favorites that define contemporary fashion
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {featuredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg" onClick={() => window.location.href = '/products'}>
-            View All Products
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
-        </div>
-      </div>
-    </section>
-  );
-};
 
 // Features Section
 const FeaturesSection = () => {
@@ -4257,24 +4264,52 @@ const Footer = () => {
             </p>
           </div>
           
-          <div>
-            <h4 className="font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2 text-gray-400">
-              <li><a href="/about" className="hover:text-orange-400 transition-colors">About Us</a></li>
-              <li><a href="/contact" className="hover:text-orange-400 transition-colors">Contact</a></li>
-              <li><a href="/shipping" className="hover:text-orange-400 transition-colors">Shipping Info</a></li>
-              <li><a href="/returns" className="hover:text-orange-400 transition-colors">Returns</a></li>
-            </ul>
-          </div>
+<div>
+  <h4 className="font-semibold mb-4">Quick Links</h4>
+  <ul className="space-y-2 text-gray-400">
+    <li>
+      <Link to="/about" className="hover:text-orange-400 transition-colors">
+        About Us
+      </Link>
+    </li>
+    <li>
+      <Link to="/contact" className="hover:text-orange-400 transition-colors">
+        Contact
+      </Link>
+    </li>
+    <li>
+      <Link to="/shipping" className="hover:text-orange-400 transition-colors">
+        Shipping Info
+      </Link>
+    </li>
+    <li>
+      <Link to="/returns" className="hover:text-orange-400 transition-colors">
+        Returns
+      </Link>
+    </li>
+  </ul>
+</div>
 
-          <div>
-            <h4 className="font-semibold mb-4">Categories</h4>
-            <ul className="space-y-2 text-gray-400">
-              <li><a href="/shirts" className="hover:text-orange-400 transition-colors">Shirts</a></li>
-              <li><a href="/pants" className="hover:text-orange-400 transition-colors">Pants</a></li>
-              <li><a href="/accessories" className="hover:text-orange-400 transition-colors">Accessories</a></li>
-            </ul>
-          </div>
+<div>
+  <h4 className="font-semibold mb-4">Categories</h4>
+  <ul className="space-y-2 text-gray-400">
+    <li>
+      <Link to="/shirts" className="hover:text-orange-400 transition-colors">
+        Shirts
+      </Link>
+    </li>
+    <li>
+      <Link to="/pants" className="hover:text-orange-400 transition-colors">
+        Pants
+      </Link>
+    </li>
+    <li>
+      <Link to="/accessories" className="hover:text-orange-400 transition-colors">
+        Accessories
+      </Link>
+    </li>
+  </ul>
+</div>
 
           <div>
             <h4 className="font-semibold mb-4">Contact Info</h4>
