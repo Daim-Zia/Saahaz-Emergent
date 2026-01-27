@@ -1,3 +1,4 @@
+import React from "react";
 import {
   BrowserRouter,
   Routes,
@@ -7,8 +8,10 @@ import {
   useNavigate,
   useParams
 } from "react-router-dom";
+
 import axios from "axios";
 import "./App.css";
+
 
 // Shadcn UI
 import { Button } from "./components/ui/button";
@@ -622,10 +625,10 @@ const HeroSection = () => {
         <p className="text-xl md:text-2xl mb-10 opacity-90 font-light max-w-3xl mx-auto leading-relaxed">
           Discover premium couture that embodies sophistication and elegance. 
           Where luxury meets contemporary design in Pakistan's finest fashion destination.
-        </p>
-      
-           const HeroSection = () => {
-        const navigate = useNavigate(); // ✅ correct place
+          </p>
+
+        const HeroSection = () => {
+        const navigate = useNavigate();
       
         return (
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
@@ -647,7 +650,6 @@ const HeroSection = () => {
           </div>
         );
       };
-
         
         {/* Luxury indicators */}
         <div className="flex justify-center items-center space-x-8 mt-12 text-sm uppercase tracking-widest text-gray-300">
