@@ -606,32 +606,65 @@ const AuthDialog = () => {
 
 // Hero Section Component - Luxury Theme
 const HeroSection = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="relative h-[700px] flex items-center justify-center overflow-hidden luxury-hero">
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzh8MHwxfHNlYXJjaHwxfHxmYXNoaW9ufGVufDB8fHx8MTc1ODA1OTk4NHww&ixlib=rb-4.1.0&q=85')`
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85')`
         }}
       />
-      
-      {/* Luxury overlay pattern */}
+
       <div className="absolute inset-0 opacity-20">
-        <div className="w-full h-full" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(212,175,55,0.3) 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }}></div>
+        <div
+          className="w-full h-full"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(212,175,55,0.3) 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }}
+        />
       </div>
-      
-      <div className="relative z-10 text-center text-white max-w-5xl px-4 luxury-fade-in">
+
+      <div className="relative z-10 text-center text-white max-w-5xl px-4">
         <h1 className="text-6xl md:text-7xl font-bold mb-8 leading-tight font-serif">
-          <span className="block text-white">Luxury Fashion</span>
-          <span className="block gradient-text gold-shimmer">Redefined</span>
+          <span className="block">Luxury Fashion</span>
+          <span className="block text-orange-500">Redefined</span>
         </h1>
-        <p className="text-xl md:text-2xl mb-10 opacity-90 font-light max-w-3xl mx-auto leading-relaxed">
-          Discover premium couture that embodies sophistication and elegance. 
+
+        <p className="text-xl md:text-2xl mb-10 opacity-90 max-w-3xl mx-auto">
+          Discover premium couture that embodies sophistication and elegance.
           Where luxury meets contemporary design in Pakistan's finest fashion destination.
-          </p>
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-6 justify-center">
+          <Button
+            size="lg"
+            className="luxury-button text-lg px-10 py-4 h-auto"
+            onClick={() => navigate("/products")}
+          >
+            Explore Collection
+          </Button>
+
+          <Button
+            size="lg"
+            className="luxury-button-outline text-lg px-10 py-4 h-auto"
+            onClick={() => navigate("/categories")}
+          >
+            Shop Categories
+          </Button>
+        </div>
+
+        <div className="flex justify-center items-center space-x-8 mt-12 text-sm uppercase tracking-widest text-gray-300">
+          <span>Free Delivery</span>
+          <span>Premium Quality</span>
+          <span>Easy Returns</span>
+        </div>
+      </div>
+    </section>
+  );
+};
 
         
         {/* Luxury indicators */}
