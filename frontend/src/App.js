@@ -627,43 +627,6 @@ const HeroSection = () => {
           Where luxury meets contemporary design in Pakistan's finest fashion destination.
           </p>
 
-        const HeroSection = () => {
-  const navigate = useNavigate();
-
-  return (
-    <section className="relative h-[700px] flex items-center justify-center overflow-hidden luxury-hero">
-      <div className="relative z-10 text-center text-white max-w-5xl px-4">
-        <h1 className="text-6xl md:text-7xl font-bold mb-8">
-          <span className="block">Luxury Fashion</span>
-          <span className="block text-orange-500">Redefined</span>
-        </h1>
-
-        <p className="text-xl md:text-2xl mb-10 opacity-90 max-w-3xl mx-auto">
-          Discover premium couture that embodies sophistication and elegance.
-        </p>
-
-        <div className="flex flex-col sm:flex-row gap-6 justify-center">
-          <Button
-            size="lg"
-            className="luxury-button text-lg px-10 py-4 h-auto"
-            onClick={() => navigate("/products")}
-          >
-            Explore Collection
-          </Button>
-
-          <Button
-            size="lg"
-            className="luxury-button-outline text-lg px-10 py-4 h-auto"
-            onClick={() => navigate("/categories")}
-          >
-            Shop Categories
-          </Button>
-        </div>
-      </div>
-    </section>
-  );
-};
-
         
         {/* Luxury indicators */}
         <div className="flex justify-center items-center space-x-8 mt-12 text-sm uppercase tracking-widest text-gray-300">
