@@ -617,9 +617,6 @@ const HeroSection = () => {
           Discover premium couture that embodies sophistication and elegance. 
           Where luxury meets contemporary design in Pakistan's finest fashion destination.
         </p>
-        const navigate = useNavigate();
-        
-      import { useNavigate } from "react-router-dom";
       
       const HeroSection = () => {
         const navigate = useNavigate();
