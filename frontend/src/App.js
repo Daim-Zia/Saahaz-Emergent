@@ -1,11 +1,17 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect
+} from "react";
+
 import {
   Routes,
   Route,
-  Link,
   useLocation,
   useNavigate,
   useParams,
+  Link
 } from "react-router-dom";
 
 
@@ -4651,12 +4657,13 @@ const AppContent = () => {
 
 function App() {
   return (
-    <BrowserRouter>
-      <AppProvider>
+    <AppProvider>
+      <div className="App">
         <AppContent />
-      </AppProvider>
-    </BrowserRouter>
+      </div>
+    </AppProvider>
   );
 }
 
 export default App;
+
