@@ -4565,19 +4565,6 @@ const AppProvider = ({ children }) => {
   );
 };
 
-// Main App Component
-function App() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-return (
-  <AppProvider>
-    <div className="App">
-      <AppContent />
-    </div>
-  </AppProvider>
-);
-
-
 // App Content Component (to access context)
 const AppContent = () => {
   const { cartCount } = useAppContext();
