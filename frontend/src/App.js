@@ -618,8 +618,8 @@ const HeroSection = () => {
           Where luxury meets contemporary design in Pakistan's finest fashion destination.
         </p>
       
-      const HeroSection = () => {
-        const navigate = useNavigate();
+           const HeroSection = () => {
+        const navigate = useNavigate(); // ✅ correct place
       
         return (
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
@@ -641,7 +641,6 @@ const HeroSection = () => {
           </div>
         );
       };
-
 
         
         {/* Luxury indicators */}
