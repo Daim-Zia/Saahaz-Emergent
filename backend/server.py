@@ -753,6 +753,9 @@ app.add_middleware(
         "https://localhost:3000", 
         "http://127.0.0.1:3000",
         "https://clothing-shop-15.preview.emergentagent.com",
+        "https://www.saahaz.com",
+        "https://saahaz.com",
+        "http://saahaz.com",
         "*"  # Fallback for other origins
     ],
     allow_credentials=True,
