@@ -761,7 +761,7 @@ const ProductCard = ({ product }) => {
             // Use default size and color for quick add to cart
             const defaultSize = product.sizes[0] || null;
             const defaultColor = product.colors[0] || null;
-            addToCart(product.id, 1, defaultSize, defaultColor);
+            addToCart(product._id, 1, defaultSize, defaultColor);
             showToast(`${product.name} added to cart!`, 'success');
           }}
         >
@@ -2488,7 +2488,7 @@ const ProductDetails = () => {
       showToast('Please select size and color', 'warning');
       return;
     }
-    addToCart(product.id, quantity, selectedSize, selectedColor);
+    addToCart(product._id, quantity, selectedSize, selectedColor);
     showToast('Product added to cart successfully!', 'success');
   };
 
@@ -4369,7 +4369,7 @@ const Home = () => {
         if (productsResponse.data && productsResponse.data.length > 0) {
           productsResponse.data.forEach((product, index) => {
             console.log(`Product ${index} (${product.name}):`, {
-              id: product.id,
+              id: product._id,
               imageCount: product.images ? product.images.length : 0,
               images: product.images ? product.images.map(img => 
                 typeof img === 'string' ? `${img.substring(0, 50)}... (length: ${img.length})` : img
