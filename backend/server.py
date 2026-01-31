@@ -308,8 +308,8 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         if user_doc is None:
             raise HTTPException(status_code=401, detail="User not found")
         
-        # Create user object (without password_hash)
-        user_response = {k: v for k, v in user_doc.items() if k != 'password_hash'}
+        # Create user object (without password_hash and _id)
+        user_response = {k: v for k, v in user_doc.items() if k not in ['password_hash', '_id']}
         return User(**user_response)
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
@@ -333,8 +333,8 @@ async def get_current_user_optional(authorization: str = Header(None)):
         if user_doc is None:
             return None
         
-        # Create user object (without password_hash)
-        user_response = {k: v for k, v in user_doc.items() if k != 'password_hash'}
+        # Create user object (without password_hash and _id)
+        user_response = {k: v for k, v in user_doc.items() if k not in ['password_hash', '_id']}
         return User(**user_response)
     except JWTError:
         return None
@@ -379,8 +379,10 @@ async def login(user_data: UserLogin):
     if not verify_password(user_data.password, user_doc.get('password_hash', '')):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
+    # Remove MongoDB _id and password_hash, keep only User model fields
+    user_response = {k: v for k, v in user_doc.items() if k not in ['password_hash', '_id']}
+    
     # FORCE is_admin to True for m.admin@saahaz.com and test@saahaz.com - temporary fix
-    user_response = {k: v for k, v in user_doc.items() if k != 'password_hash'}
     if user_response.get('email') in ['m.admin@saahaz.com', 'test@saahaz.com']:
         user_response['is_admin'] = True
     
@@ -393,7 +395,7 @@ async def login(user_data: UserLogin):
 @api_router.get("/categories", response_model=List[Category])
 async def get_categories():
     categories = await db[categories_collection].find().to_list(1000)
-    return [Category(**category) for category in categories]
+    return [Category(**{k: v for k, v in category.items() if k != '_id'}) for category in categories]
 
 @api_router.post("/categories", response_model=Category)
 async def create_category(category_data: CategoryCreate, current_user: User = Depends(get_current_user)):
@@ -418,7 +420,7 @@ async def update_category(category_id: str, category_data: CategoryCreate, curre
         raise HTTPException(status_code=404, detail="Category not found")
     
     category = await db[categories_collection].find_one({"id": category_id})
-    return Category(**category)
+    return Category(**{k: v for k, v in category.items() if k != '_id'})
 
 @api_router.delete("/categories/{category_id}")
 async def delete_category(category_id: str, current_user: User = Depends(get_current_user)):
@@ -441,14 +443,14 @@ async def get_products(category_id: Optional[str] = None, featured: Optional[boo
         filter_query["featured"] = featured
     
     products = await db[products_collection].find(filter_query).to_list(1000)
-    return [Product(**product) for product in products]
+    return [Product(**{k: v for k, v in product.items() if k != '_id'}) for product in products]
 
 @api_router.get("/products/{product_id}", response_model=Product)
 async def get_product(product_id: str):
     product = await db[products_collection].find_one({"id": product_id})
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    return Product(**product)
+    return Product(**{k: v for k, v in product.items() if k != '_id'})
 
 @api_router.post("/products", response_model=Product)
 async def create_product(product_data: ProductCreate, current_user: User = Depends(get_current_user)):
@@ -474,7 +476,7 @@ async def update_product(product_id: str, product_data: ProductCreate, current_u
         raise HTTPException(status_code=404, detail="Product not found")
     
     product = await db[products_collection].find_one({"id": product_id})
-    return Product(**product)
+    return Product(**{k: v for k, v in product.items() if k != '_id'})
 
 @api_router.delete("/products/{product_id}")
 async def delete_product(product_id: str, current_user: User = Depends(get_current_user)):
@@ -672,7 +674,7 @@ async def get_orders(current_user: User = Depends(get_current_user)):
     else:
         orders = await db[orders_collection].find({"user_id": current_user.id}).to_list(1000)
     
-    return [Order(**order) for order in orders]
+    return [Order(**{k: v for k, v in order.items() if k != '_id'}) for order in orders]
 
 @api_router.put("/orders/{order_id}/status")
 async def update_order_status(order_id: str, status: str, current_user: User = Depends(get_current_user)):
