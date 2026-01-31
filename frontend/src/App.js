@@ -4329,13 +4329,13 @@ const Footer = () => {
 
         <Separator className="my-8 bg-gray-800" />
         
-      <div className="flex items-center justify-between text-gray-400 text-sm">
-        <p>&copy; 2024 Saahaz.com. All rights reserved.</p>
-      
-        <span className="font-semibold tracking-wider">
-          DZ
-        </span>
-      </div>
+        <div className="flex items-center justify-between text-gray-400 text-sm">
+          <p>&copy; 2024 Saahaz.com. All rights reserved.</p>
+        
+          <span className="font-semibold tracking-wider">
+            DZ
+          </span>
+        </div>
     </footer>
   );
 };
