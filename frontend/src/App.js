@@ -4248,7 +4248,6 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              {/* Small version of geometric S logo for footer */}
               <div className="w-8 h-8">
                 <svg viewBox="0 0 40 40" className="w-8 h-8">
                   <defs>
@@ -4260,7 +4259,6 @@ const Footer = () => {
                   <path 
                     d="M8 12 Q8 8 12 8 L28 8 Q32 8 32 12 Q32 16 28 16 L16 16 Q12 16 12 20 Q12 24 16 24 L28 24 Q32 24 32 28 Q32 32 28 32 L12 32 Q8 32 8 28"
                     fill="url(#footerLogoGradient)"
-                    stroke="none"
                   />
                 </svg>
               </div>
@@ -4270,53 +4268,25 @@ const Footer = () => {
               Your premium destination for contemporary fashion in Pakistan.
             </p>
           </div>
-          
-<div>
-  <h4 className="font-semibold mb-4">Quick Links</h4>
-  <ul className="space-y-2 text-gray-400">
-    <li>
-      <Link to="/about" className="hover:text-orange-400 transition-colors">
-        About Us
-      </Link>
-    </li>
-    <li>
-      <Link to="/contact" className="hover:text-orange-400 transition-colors">
-        Contact
-      </Link>
-    </li>
-    <li>
-      <Link to="/shipping" className="hover:text-orange-400 transition-colors">
-        Shipping Info
-      </Link>
-    </li>
-    <li>
-      <Link to="/returns" className="hover:text-orange-400 transition-colors">
-        Returns
-      </Link>
-    </li>
-  </ul>
-</div>
 
-<div>
-  <h4 className="font-semibold mb-4">Categories</h4>
-  <ul className="space-y-2 text-gray-400">
-    <li>
-      <Link to="/shirts" className="hover:text-orange-400 transition-colors">
-        Shirts
-      </Link>
-    </li>
-    <li>
-      <Link to="/pants" className="hover:text-orange-400 transition-colors">
-        Pants
-      </Link>
-    </li>
-    <li>
-      <Link to="/accessories" className="hover:text-orange-400 transition-colors">
-        Accessories
-      </Link>
-    </li>
-  </ul>
-</div>
+          <div>
+            <h4 className="font-semibold mb-4">Quick Links</h4>
+            <ul className="space-y-2 text-gray-400">
+              <li><Link to="/about" className="hover:text-orange-400">About Us</Link></li>
+              <li><Link to="/contact" className="hover:text-orange-400">Contact</Link></li>
+              <li><Link to="/shipping" className="hover:text-orange-400">Shipping Info</Link></li>
+              <li><Link to="/returns" className="hover:text-orange-400">Returns</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-4">Categories</h4>
+            <ul className="space-y-2 text-gray-400">
+              <li><Link to="/shirts" className="hover:text-orange-400">Shirts</Link></li>
+              <li><Link to="/pants" className="hover:text-orange-400">Pants</Link></li>
+              <li><Link to="/accessories" className="hover:text-orange-400">Accessories</Link></li>
+            </ul>
+          </div>
 
           <div>
             <h4 className="font-semibold mb-4">Contact Info</h4>
@@ -4328,17 +4298,16 @@ const Footer = () => {
         </div>
 
         <Separator className="my-8 bg-gray-800" />
-        
+
         <div className="flex items-center justify-between text-gray-400 text-sm">
           <p>&copy; 2024 Saahaz.com. All rights reserved.</p>
-        
-          <span className="font-semibold tracking-wider">
-            DZ
-          </span>
+          <span className="font-semibold tracking-wider">DZ</span>
         </div>
+      </div> {/* ✅ THIS WAS MISSING */}
     </footer>
   );
 };
+
 
 // Main Home Component
 const Home = () => {
